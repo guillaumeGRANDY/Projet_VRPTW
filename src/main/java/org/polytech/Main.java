@@ -1,11 +1,11 @@
-package org.example;
+package org.polytech;
 
-import org.example.algorithm.tour.route.AlgoRoute;
-import org.example.algorithm.tour.route.AlgoRouteRandom;
-import org.example.model.Client;
-import org.example.model.Depot;
-import org.example.model.Tour;
-import org.example.parser.LocationParser;
+import org.polytech.algorithm.tour.route.AlgoRoute;
+import org.polytech.algorithm.tour.route.AlgoRouteRandom;
+import org.polytech.model.Client;
+import org.polytech.model.Depot;
+import org.polytech.model.Tour;
+import org.polytech.parser.LocationParser;
 
 import java.io.IOException;
 import java.util.ArrayList;

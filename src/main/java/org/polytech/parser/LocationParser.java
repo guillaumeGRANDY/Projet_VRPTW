@@ -1,7 +1,7 @@
-package org.example.parser;
+package org.polytech.parser;
 
-import org.example.model.Depot;
-import org.example.model.Client;
+import org.polytech.model.Depot;
+import org.polytech.model.Client;
 
 import java.io.*;
 import java.net.URISyntaxException;

@@ -1,4 +1,4 @@
-package org.example.model;
+package org.polytech.model;
 
 public abstract class Location {
 

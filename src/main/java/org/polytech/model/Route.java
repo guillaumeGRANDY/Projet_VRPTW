@@ -1,4 +1,4 @@
-package org.example.model;
+package org.polytech.model;
 
 import java.util.ArrayList;
 

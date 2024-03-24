@@ -1,6 +1,6 @@
-package org.example.algorithm;
+package org.polytech.algorithm;
 
-import org.example.model.Client;
+import org.polytech.model.Client;
 
 import java.util.ArrayList;
 

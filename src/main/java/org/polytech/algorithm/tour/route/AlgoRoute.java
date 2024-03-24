@@ -1,6 +1,6 @@
-package org.example.algorithm.tour.route;
+package org.polytech.algorithm.tour.route;
 
-import org.example.model.*;
+import org.polytech.model.*;
 
 import java.util.ArrayList;
 import java.util.HashMap;

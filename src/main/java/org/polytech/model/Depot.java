@@ -1,4 +1,4 @@
-package org.example.model;
+package org.polytech.model;
 
 /**
  * idName x y readyTime dueTime
