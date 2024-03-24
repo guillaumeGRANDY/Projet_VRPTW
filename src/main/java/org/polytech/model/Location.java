@@ -32,8 +32,8 @@ public abstract class Location {
      * @return
      */
     public double distanceWith(Location location) {
-        double distanceX = Math.abs(this.x - location.x) * Math.abs(this.x - location.x);
-        double distanceY = Math.abs(this.x - location.x) * Math.abs(this.x - location.x);
+        double distanceX = Math.pow(Math.abs(this.x - location.x), 2);
+        double distanceY = Math.pow(Math.abs(this.y - location.y), 2);
         return Math.sqrt(distanceX + distanceY);
     }
 }
