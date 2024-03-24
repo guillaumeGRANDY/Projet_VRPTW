@@ -3,7 +3,7 @@ package org.polytech.model;
 /**
  * idName x y readyTime dueTime
  */
-public class Depot extends Location{
+public class Depot extends Location {
     private String id;
 
     /**

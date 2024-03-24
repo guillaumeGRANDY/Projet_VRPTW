@@ -1,14 +1,24 @@
 package org.polytech.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Route {
     private Truck truck;
     private Depot depot;
     private ArrayList<Client> clients = new ArrayList<>();
 
-    public Route(Depot depot) {
+    public Route(Depot depot, Truck truck) {
         this.depot = depot;
+        this.truck = truck;
+    }
+
+    public Depot getBegin() {
+        return this.depot;
+    }
+
+    public List<Client> getClients() {
+        return this.clients;
     }
 
     /**

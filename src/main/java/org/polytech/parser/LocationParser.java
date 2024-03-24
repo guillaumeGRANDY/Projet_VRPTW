@@ -27,7 +27,10 @@ public class LocationParser {
         return maxQuantity;
     }
 
-    public LocationParser(String fileName) throws IOException {
+    public LocationParser() {
+    }
+
+    public void parseFile(String fileName) throws IOException {
         ClassLoader classLoader = getClass().getClassLoader();
         URL resource = classLoader.getResource(fileName);
         if (resource == null) {
