@@ -2,6 +2,7 @@ package org.polytech.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 public class Route {
     private Truck truck;
@@ -54,24 +55,32 @@ public class Route {
         this.clients.add(client);
     }
 
-    public void deleteClient(Client client)
-    {
+    public void deleteClient(Client client) {
         this.clients.remove(this.clients.indexOf(client));
     }
 
-    public void exchangeClientPosition(Client c1, Client c2)
-    {
-        Client tmp=this.clients.get(this.clients.indexOf(c1));
-        c1=c2;
-        c2=tmp;
+    /**
+     * Transformation "échange entre 2 clients sur l'itinéraire"
+     * O(n): à cause des indexOf(client) pour trouver les 2 clients
+     *
+     * @param c1 le client 1
+     * @param c2 le client 2
+     */
+    public void exchangeClientPosition(Client c1, Client c2) {
+        int i = this.clients.indexOf(c1);
+        int j = this.clients.indexOf(c2);
+
+        if (i == -1 || j == -1) throw new NoSuchElementException("Un des clients n'est pas sur l'itinéraire");
+
+        this.clients.set(i, c2);
+        this.clients.set(j, c1);
     }
 
     @Override
     public String toString() {
-        StringBuilder route= new StringBuilder("Dépot -> ");
+        StringBuilder route = new StringBuilder("Dépot -> ");
 
-        for(Client client: clients)
-        {
+        for (Client client : clients) {
             route.append(client.getId()).append(" -> ");
         }
 
