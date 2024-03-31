@@ -12,6 +12,9 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import org.polytech.App;
+import org.polytech.algorithm.LocalSearchType;
+import org.polytech.algorithm.localsearch.HillClimbingException;
+import org.polytech.algorithm.localsearch.LocalSearchFactory;
 import org.polytech.algorithm.tour.*;
 import org.polytech.model.*;
 import org.polytech.parser.LocationParser;
@@ -28,9 +31,13 @@ import static org.polytech.algorithm.tour.AlgorithmType.RANDOM;
 
 public class RoutingController implements Initializable {
     @FXML
-    private Button startAlgoButton;
+    private Button startLocalSearchButton;
     @FXML
-    private ComboBox<AlgorithmType> algorithmChoice;
+    private Button startInitialAlgoButton;
+    @FXML
+    private ComboBox<AlgorithmType> initialAlgorithmComboBox;
+    @FXML
+    private ComboBox<LocalSearchType> localSearchTypeComboBox;
     @FXML
     private SplitPane map;
     @FXML
@@ -57,8 +64,11 @@ public class RoutingController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        this.algorithmChoice.setItems(FXCollections.observableList(Arrays.stream(AlgorithmType.values()).toList()));
-        this.algorithmChoice.setValue(RANDOM);
+        this.initialAlgorithmComboBox.setItems(FXCollections.observableList(Arrays.stream(AlgorithmType.values()).toList()));
+        this.initialAlgorithmComboBox.setValue(RANDOM);
+
+        this.localSearchTypeComboBox.setItems(FXCollections.observableList(Arrays.stream(LocalSearchType.values()).toList()));
+        this.localSearchTypeComboBox.setValue(LocalSearchType.INTRA_ROUTE_REVERSE_CLIENT);
 
         this.mapGroup = new Group();
         this.map.getItems().add(mapGroup);
@@ -67,11 +77,35 @@ public class RoutingController implements Initializable {
 
         this.initFileTest();
 
-        this.startAlgoButton.setOnAction(actionEvent -> {
+        this.startInitialAlgoButton.setOnAction(actionEvent -> {
             this.tour = AlgoTourFactory.makeTour(this.constraintTruck,
                     this.begin,
                     this.clients,
-                    this.algorithmChoice.getValue());
+                    this.initialAlgorithmComboBox.getValue());
+            this.routes = this.tour.getRoutes();
+            this.makeTourne();
+        });
+
+        this.startLocalSearchButton.setOnAction(actionEvent -> {
+            if (this.tour == null) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Aucun tour n'a été généré");
+                alert.setContentText("Veuillez générer un tour avant de lancer la recherche locale");
+                alert.showAndWait();
+                return;
+            }
+
+            LocalSearchType localSearchType = this.localSearchTypeComboBox.getValue();
+            try {
+                this.tour = LocalSearchFactory.makeLocalSearch(this.tour, localSearchType);
+            } catch (HillClimbingException e) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Erreur lors de la recherche locale");
+                alert.setContentText(e.getMessage());
+                alert.showAndWait();
+            }
             this.routes = this.tour.getRoutes();
             this.makeTourne();
         });

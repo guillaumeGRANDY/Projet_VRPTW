@@ -1,11 +1,20 @@
 package org.polytech.model;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class Tour {
-    private ArrayList<Route> routes = new ArrayList<>();
+    private List<Route> routes;
 
-    public ArrayList<Route> getRoutes() {
+    public Tour() {
+        this.routes = new ArrayList<>();
+    }
+
+    public Tour(List<Route> routes) {
+        this.routes = new ArrayList<>(routes);
+    }
+
+    public List<Route> getRoutes() {
         return routes;
     }
 

@@ -23,8 +23,11 @@
               AnchorPane.rightAnchor="16"
               AnchorPane.leftAnchor="16">
             <HBox>
-                <Button fx:id="startAlgoButton">Lancer algo</Button>
-                <ComboBox fx:id="algorithmChoice"/>
+                <Button fx:id="startInitialAlgoButton">Lancer algo initial</Button>
+                <ComboBox fx:id="initialAlgorithmComboBox"/>
+
+                <Button fx:id="startLocalSearchButton">Lancer recherche locale</Button>
+                <ComboBox fx:id="localSearchTypeComboBox"/>
             </HBox>
             <SplitPane fx:id="map">
             </SplitPane>

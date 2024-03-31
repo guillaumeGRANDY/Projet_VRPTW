@@ -1,6 +1,7 @@
 package org.polytech.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 
@@ -12,6 +13,12 @@ public class Route {
     public Route(Depot depot, Truck truck) {
         this.depot = depot;
         this.truck = truck;
+    }
+
+    public Route(Route route) {
+        this.depot = route.depot;
+        this.clients = new ArrayList<>(route.clients);
+        this.truck = route.truck;
     }
 
     public Depot getBegin() {
@@ -87,5 +94,10 @@ public class Route {
         route.append("Dépot");
 
         return route.toString();
+    }
+
+    public void reverseTroncon(int i, int j) {
+        List<Client> tronconInverse = clients.subList(i, j+1);
+        Collections.reverse(tronconInverse);
     }
 }
