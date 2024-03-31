@@ -10,6 +10,9 @@ public class LocalSearchFactory {
             case INTRA_ROUTE_REVERSE_CLIENT -> {
                 localSearch = new HillClimbingIntraRouteReverse(initial);
             }
+            case INTRA_ROUTE_TWO_OPT -> {
+                localSearch = new HillClimbingIntra2Opt(initial);
+            }
             default -> {
                 localSearch = new HillClimbingIntraRouteReverse(initial);
             }
