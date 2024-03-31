@@ -46,7 +46,7 @@ public class LocationParser {
         }
     }
 
-    private void parseFile(File file) throws IOException {
+    public void parseFile(File file) throws IOException {
 
         String line = "";
         Scanner scanner = new Scanner(file);

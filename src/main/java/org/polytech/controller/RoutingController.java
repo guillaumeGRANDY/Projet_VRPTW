@@ -1,28 +1,30 @@
 package org.polytech.controller;
 
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.SplitPane;
+import javafx.scene.control.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import org.polytech.algorithm.tour.AlgoTourne;
-import org.polytech.algorithm.tour.AlgoTourneDemandeCroissante;
-import org.polytech.algorithm.tour.AlgoTourneRandom;
+import javafx.stage.FileChooser;
+import org.polytech.App;
+import org.polytech.algorithm.tour.*;
 import org.polytech.model.*;
 import org.polytech.parser.LocationParser;
+import org.polytech.vue.CircleClient;
 import org.polytech.vue.CircleDepot;
 import org.polytech.vue.Connector;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 
-import static org.polytech.controller.AlgorithmType.RANDOM;
+import static org.polytech.algorithm.tour.AlgorithmType.RANDOM;
 
 public class RoutingController implements Initializable {
     @FXML
@@ -32,19 +34,26 @@ public class RoutingController implements Initializable {
     @FXML
     private SplitPane map;
     @FXML
-    private Label totalDistanceLabel;
+    private TableView<Client> clientsTable;
+    @FXML
+    private TableView<Route> routesTable;
 
     private Group mapGroup;
-    private List<Connector> connectors = new ArrayList<>();
-
+    private final List<Connector> connectors = new ArrayList<>();
     private int scaleFactor = 10;
 
-    private HashMap<Depot, Circle> depotCircles = new HashMap<>();
-    private HashMap<Client, Circle> clientsCircle = new HashMap<>();
+    private final HashMap<Depot, Circle> depotCircles = new HashMap<>();
+    private final HashMap<Client, CircleClient> clientsCircle = new HashMap<>();
+    private HashMap<Route, Color> routeColor = new HashMap<>();
+    private final HashMap<Route, List<Connector>> routeConnectors = new HashMap<>();
+
     private LocationParser locationParser = new LocationParser();
     private List<Client> clients = new ArrayList<>();
     private Depot begin;
     private ConstraintTruck constraintTruck;
+
+    private Tour tour = null;
+    private List<Route> routes = new ArrayList<>();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -53,49 +62,106 @@ public class RoutingController implements Initializable {
 
         this.mapGroup = new Group();
         this.map.getItems().add(mapGroup);
+        initRoutesTableView();
+        this.initClientsTableView();
 
-        try {
-            this.locationParser.parseFile("data101.vrp");
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        this.clients = this.locationParser.getClients();
-        this.begin = this.locationParser.getDepot();
-        this.constraintTruck = new ConstraintTruck(this.locationParser.getMaxQuantity());
-
-        initMap();
+        this.initFileTest();
 
         this.startAlgoButton.setOnAction(actionEvent -> {
-            switch (this.algorithmChoice.getValue()) {
-                case RANDOM -> {
-                    AlgoTourne algoTourne = new AlgoTourneRandom(this.constraintTruck,
-                            this.begin,
-                            this.clients);
-                    Tour tour = algoTourne.makeTour();
+            this.tour = AlgoTourFactory.makeTour(this.constraintTruck,
+                    this.begin,
+                    this.clients,
+                    this.algorithmChoice.getValue());
+            this.routes = this.tour.getRoutes();
+            this.makeTourne();
+        });
+    }
 
-                    this.makeTourne(tour);
-                }
-                case CROISSANT_SORT -> {
-                    AlgoTourne algoTourne = new AlgoTourneDemandeCroissante(this.constraintTruck,
-                            this.begin,
-                            this.clients);
-                    Tour tour = algoTourne.makeTour();
+    private void initClientsTableView() {
+        this.clientsTable.setItems(FXCollections.observableList(this.clients));
 
-                    this.makeTourne(tour);
-                }
+        TableColumn<Client, String> idColumn = new TableColumn<>("Id");
+        idColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getId()));
+
+        TableColumn<Client, Integer> xColumn = new TableColumn<>("X");
+        xColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getX()).asObject());
+
+        TableColumn<Client, Integer> yColumn = new TableColumn<>("Y");
+        yColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getY()).asObject());
+
+        TableColumn<Client, String> readyTimeColumn = new TableColumn<>("Heure de début");
+        readyTimeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getReadyTime())));
+
+        TableColumn<Client, String> dueTimeColumn = new TableColumn<>("Heure de fin");
+        dueTimeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getDueTime())));
+
+        TableColumn<Client, Integer> demandColumn = new TableColumn<>("Demande");
+        demandColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getDemand()).asObject());
+
+        TableColumn<Client, Integer> serviceColumn = new TableColumn<>("Temps de service");
+        serviceColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getService()).asObject());
+
+        this.clientsTable.getColumns().addAll(idColumn, xColumn, yColumn, readyTimeColumn, dueTimeColumn, demandColumn, serviceColumn);
+        this.clientsTable.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            CircleClient circleClientSelected = this.clientsCircle.get(newValue);
+            CircleClient circleClientOldSelected = this.clientsCircle.get(oldValue);
+            if (newValue != null) {
+                circleClientSelected.select();
+                if(oldValue != null) circleClientOldSelected.deSelect();
             }
         });
     }
 
+    private void initRoutesTableView() {
+        this.routesTable.setItems(FXCollections.observableList(this.routes));
+
+        TableColumn<Route, String> beginColumn = new TableColumn<>("Départ");
+        beginColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getBegin().toString()));
+        this.routesTable.getColumns().add(beginColumn);
+
+        TableColumn<Route, String> clientsColumn = new TableColumn<>("Clients");
+        clientsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().toString()));
+        this.routesTable.getColumns().add(clientsColumn);
+
+        TableColumn<Route, Integer> quantityColumn = new TableColumn<>("Nombre clients");
+        quantityColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getClients().size()).asObject());
+        this.routesTable.getColumns().add(quantityColumn);
+
+        TableColumn<Route, Double> distanceColumn = new TableColumn<>("Distance");
+        distanceColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().distance()).asObject());
+        this.routesTable.getColumns().add(distanceColumn);
+
+        this.routesTable.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
+            if (newValue != null) {
+                this.routeColor.forEach((route, color) -> {
+                    if (route.equals(newValue)) {
+                        this.routeConnectors.get(route).forEach(connector -> {
+                            connector.setStrokeWidth(4);
+                            connector.setFill(Color.BLACK);
+                        });
+                    } else {
+                        this.routeConnectors.get(route).forEach(connector -> {
+                            connector.setFill(color);
+                            connector.setStrokeWidth(1);
+                        });
+                    }
+                });
+            }
+        });
+    }
 
     private void resetArrowsMap() {
         this.mapGroup.getChildren().removeAll(this.connectors);
     }
 
-    private void makeTourne(Tour tour) {
+    private void makeTourne() {
         this.resetArrowsMap();
+        this.routeColor = new HashMap<>();
 
-        for (Route route : tour.getRoutes()) {
+        Color color = new Color(0, 0, 1, 1);
+        for (Route route : this.tour.getRoutes()) {
+            this.routeColor.put(route, color);
+
             Depot beginDepotRoute = route.getBegin();
             Circle beginDepotRouteCircle = this.depotCircles.get(beginDepotRoute);
             if (beginDepotRouteCircle == null) {
@@ -109,38 +175,106 @@ public class RoutingController implements Initializable {
             List<Client> clients = route.getClients();
 
             Connector lineArrowFromBeginToFirstClient = new Connector(beginDepotRouteCircle, clientsCircle.get(clients.getFirst()));
+            lineArrowFromBeginToFirstClient.setFill(color);
             this.mapGroup.getChildren().add(lineArrowFromBeginToFirstClient);
             this.connectors.add(lineArrowFromBeginToFirstClient);
+            this.routeConnectors.put(route, new ArrayList<>(List.of(lineArrowFromBeginToFirstClient)));
 
             for (int i = 1; i < clients.size(); i++) {
                 Client ancestor = clients.get(i - 1);
                 Client current = clients.get(i);
 
                 Connector lineArrowFromClientToClient = new Connector(clientsCircle.get(ancestor), clientsCircle.get(current));
+                lineArrowFromClientToClient.setFill(color);
                 this.mapGroup.getChildren().add(lineArrowFromClientToClient);
                 this.connectors.add(lineArrowFromClientToClient);
+                this.routeConnectors.get(route).add(lineArrowFromClientToClient);
             }
             Connector lineArrowFromLastClientToBegin = new Connector(clientsCircle.get(clients.getLast()), beginDepotRouteCircle);
+            lineArrowFromLastClientToBegin.setFill(color);
             this.mapGroup.getChildren().add(lineArrowFromLastClientToBegin);
             this.connectors.add(lineArrowFromLastClientToBegin);
-        }
+            this.routeConnectors.get(route).add(lineArrowFromLastClientToBegin);
 
-        this.totalDistanceLabel.setText(String.valueOf(tour.totalDistance()));
+            color = new Color(Math.random(), Math.random(), Math.random(), 1);
+        }
+        this.routesTable.setItems(FXCollections.observableList(this.tour.getRoutes()));
     }
 
-    private void initMap() {
+    private void initClientsCircle() {
+        for (Client client : clients) {
+            CircleClient circleClient = new CircleClient(client, client.getX() * scaleFactor, client.getY() * scaleFactor, 5, new Color(1, 0, 0, 1));
+            circleClient.addEventHandler(javafx.scene.input.MouseEvent.MOUSE_CLICKED, event -> {
+                if (clientsTable.getSelectionModel().getSelectedItem() != client) {
+                    clientsTable.getSelectionModel().select(client);
+                    clientsTable.scrollTo(client);
+                } else {
+                    clientsTable.getSelectionModel().clearSelection();
+                }
+            });
+
+            mapGroup.getChildren().add(circleClient);
+            clientsCircle.put(client, circleClient);
+        }
+    }
+
+    private void setClients(List<Client> clients) {
+        this.clients = new ArrayList<>(clients);
+        this.clientsTable.setItems(FXCollections.observableList(this.clients));
+        this.initClientsCircle();
+    }
+
+    private void setBegin(Depot depot) {
+        this.begin = depot;
         Circle beginCircle = new CircleDepot(begin.getX() * scaleFactor,
                 begin.getY() * scaleFactor,
                 10,
                 new Color(0, 1, 0, 1));
         mapGroup.getChildren().add(beginCircle);
         this.depotCircles.put(begin, beginCircle);
+    }
 
-        for (Client client : clients) {
-            Circle circle = new Circle(client.getX() * scaleFactor, client.getY() * scaleFactor, 3);
+    @FXML
+    protected void importVrpFileFromFolder() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Choisir un fichier de clients");
+        File choosedFile = fileChooser.showOpenDialog(App.getStage());
+        if (choosedFile == null) return;
 
-            mapGroup.getChildren().add(circle);
-            clientsCircle.put(client, circle);
+        try {
+            this.locationParser.parseFile(choosedFile);
+        } catch (IOException e) {
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Erreur");
+            alert.setHeaderText("Erreur lors de la lecture du fichier");
+            alert.setContentText(e.getMessage());
+            alert.showAndWait();
+            return;
         }
+
+        this.mapGroup.getChildren().clear();
+        this.setClients(this.locationParser.getClients());
+
+        this.depotCircles.clear();
+        this.setBegin(this.locationParser.getDepot());
+
+        this.constraintTruck = new ConstraintTruck(this.locationParser.getMaxQuantity());
+
+        this.routeColor.clear();
+        this.routeConnectors.clear();
+        this.routes.clear();
+        this.tour = null;
+    }
+
+    private void initFileTest() {
+        try {
+            this.locationParser.parseFile("data101.vrp");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        this.setClients(this.locationParser.getClients());
+        this.setBegin(this.locationParser.getDepot());
+        this.constraintTruck = new ConstraintTruck(this.locationParser.getMaxQuantity());
     }
 }

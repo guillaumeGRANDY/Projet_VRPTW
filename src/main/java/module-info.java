@@ -4,4 +4,5 @@ module Projet.VRPTW {
 
     opens org.polytech.controller to javafx.fxml;
     exports org.polytech;
+    opens org.polytech.algorithm.tour to javafx.fxml;
 }

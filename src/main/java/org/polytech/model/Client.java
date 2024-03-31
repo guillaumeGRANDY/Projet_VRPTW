@@ -77,14 +77,6 @@ public class Client extends Location{
 
     @Override
     public String toString() {
-        return "Location{" +
-                "id='" + id + '\'' +
-                ", x=" + super.getX() +
-                ", y=" + super.getY() +
-                ", readyTime=" + readyTime +
-                ", dueTime=" + dueTime +
-                ", demand=" + demand +
-                ", service=" + service +
-                '}';
+        return "Client " + id;
     }
 }

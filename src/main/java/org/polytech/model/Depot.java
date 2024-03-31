@@ -25,12 +25,6 @@ public class Depot extends Location {
 
     @Override
     public String toString() {
-        return "Depot{" +
-                "id='" + id + '\'' +
-                ", x=" + super.getX() +
-                ", y=" + super.getY() +
-                ", readyTime=" + readyTime +
-                ", dueTime=" + dueTime +
-                '}';
+        return "Depot " + id;
     }
 }
