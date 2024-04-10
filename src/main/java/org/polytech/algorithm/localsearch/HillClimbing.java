@@ -1,14 +1,10 @@
 package org.polytech.algorithm.localsearch;
 
-import org.polytech.model.Client;
 import org.polytech.model.Route;
 import org.polytech.model.Tour;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public abstract class HillClimbing {
-    private final Tour initial;
+    protected final Tour initial;
 
     public HillClimbing(Tour initial) {
         this.initial = new Tour(initial.getRoutes());
@@ -26,7 +22,7 @@ public abstract class HillClimbing {
         while (!isExplorationFinish) {
             sibling = exploreSiblings(current);
 
-            if(sibling.totalDistance() < current.totalDistance()) {
+            if(sibling.distance() < current.distance()) {
                 current = sibling;
             } else {
                 isExplorationFinish = true;
@@ -42,4 +38,6 @@ public abstract class HillClimbing {
      * @return la tournée améliorée
      */
     public abstract Tour exploreSiblings(Tour initial);
+
+    protected abstract Route exploreSiblings(Route route);
 }

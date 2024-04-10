@@ -14,9 +14,6 @@ public class AlgoTourFactory {
             case RANDOM -> {
                 algoTourne = new AlgoTourneRandom(constraintTruck, depot, clients);
             }
-            case CROISSANT_SORT -> {
-                algoTourne = new AlgoTourneDemandeCroissante(constraintTruck, depot, clients);
-            }
             default -> {
                 algoTourne = new AlgoTourneRandom(constraintTruck, depot, clients);
             }

@@ -4,11 +4,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 public class Route {
     private Truck truck;
     private Depot depot;
-    private ArrayList<Client> clients = new ArrayList<>();
+    private List<Livraison> livraisons = new ArrayList<>();
 
     public Route(Depot depot, Truck truck) {
         this.depot = depot;
@@ -17,7 +18,7 @@ public class Route {
 
     public Route(Route route) {
         this.depot = route.depot;
-        this.clients = new ArrayList<>(route.clients);
+        this.livraisons = new ArrayList<>(route.getLivraisons());
         this.truck = route.truck;
     }
 
@@ -26,7 +27,16 @@ public class Route {
     }
 
     public List<Client> getClients() {
-        return this.clients;
+        return this.livraisons.stream().map(Livraison::client).collect(Collectors.toList());
+    }
+
+    public Truck getTruck()
+    {
+        return truck;
+    }
+
+    public List<Livraison> getLivraisons() {
+        return this.livraisons;
     }
 
     /**
@@ -36,19 +46,19 @@ public class Route {
      * @return la distance entre le dépot, toutes les localisations de la tournée et le retour au dépôt
      */
     public double distance() {
-        if (clients == null || clients.isEmpty()) {
+        if (this.livraisons == null || this.livraisons.isEmpty()) {
             return 0;
         }
 
         double distance = 0;
 
-        distance += this.depot.distanceWith(clients.get(0)); //distance entre le dépot et le client 1
+        distance += this.depot.distanceWith(this.livraisons.getFirst().client()); //distance entre le dépot et le client 1
 
-        for (int i = 0; i < clients.size() - 1; i++) {
-            distance += this.clients.get(i).distanceWith(clients.get(i + 1)); //distance entre le client i et le cliet i+1
+        for (int i = 0; i < this.livraisons.size() - 1; i++) {
+            distance += this.livraisons.get(i).client().distanceWith(this.livraisons.get(i + 1).client()); //distance entre le client i et le cliet i+1
         }
 
-        distance += this.clients.getLast().distanceWith(this.depot); //distance entre le dernier client et le depot
+        distance += this.livraisons.getLast().client().distanceWith(this.depot); //distance entre le dernier client et le depot
 
         return distance;
     }
@@ -58,37 +68,51 @@ public class Route {
      *
      * @param client
      */
-    public void addClient(Client client) {
-        this.clients.add(client);
+    public void addLivraison(Livraison client) {
+        this.livraisons.add(client);
     }
 
-    public void deleteClient(Client client) {
-        this.clients.remove(this.clients.indexOf(client));
+    public void deleteLivraison(Livraison livraison) {
+        this.livraisons.remove(this.livraisons.indexOf(livraison));
     }
 
     /**
      * Transformation "échange entre 2 clients sur l'itinéraire"
-     * O(n): à cause des indexOf(client) pour trouver les 2 clients
+     * O(n):
      *
-     * @param c1 le client 1
-     * @param c2 le client 2
+     * @param i1 la livraison 1
+     * @param i2 le livraison 2
      */
-    public void exchangeClientPosition(Client c1, Client c2) {
-        int i = this.clients.indexOf(c1);
-        int j = this.clients.indexOf(c2);
+    public void tryExchangeClientPosition(int i1, int i2) {
+        Livraison l1 = livraisons.get(i1);
+        Livraison l2 = livraisons.get(i2);
 
-        if (i == -1 || j == -1) throw new NoSuchElementException("Un des clients n'est pas sur l'itinéraire");
+        livraisons.set(i1, l2);
+        livraisons.set(i2, l1);
 
-        this.clients.set(i, c2);
-        this.clients.set(j, c1);
+        //livraisons.get(0).setHeureArrive(livraisons.get(0).client().getReadyTime());
+
+        //test de la validité
+//        for (int i = 1; i < livraisonsTest.size(); i++) {
+//            livraisonsTest.get(i).setHeureArrive(livraisonsTest.get(i-1).heureArrive() + livraisonsTest.get(i-1).client().getService() + 1.2 * livraisonsTest.get(i-1).client().distanceWith(livraisonsTest.get(i).client()));
+//            if(livraisonsTest.get(i).heureArrive() > livraisonsTest.get(i).client().getDueTime()) {
+//                return;
+//            }
+//        }
+    }
+
+    public void tryIntraRelocate(int oldIndex, int newIndex) {
+        Livraison livraison = this.livraisons.get(oldIndex);
+        this.livraisons.remove(oldIndex);
+        this.livraisons.add(newIndex, livraison);
     }
 
     @Override
     public String toString() {
         StringBuilder route = new StringBuilder("Dépot -> ");
 
-        for (Client client : clients) {
-            route.append(client.getId()).append(" -> ");
+        for (Livraison livraison : livraisons) {
+            route.append(livraison.client().getId()).append(" -> ");
         }
 
         route.append("Dépot");
@@ -97,7 +121,7 @@ public class Route {
     }
 
     public void reverseTroncon(int i, int j) {
-        List<Client> tronconInverse = clients.subList(i, j+1);
+        List<Livraison> tronconInverse = this.livraisons.subList(i, j + 1);
         Collections.reverse(tronconInverse);
     }
 }

@@ -13,6 +13,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import org.polytech.App;
 import org.polytech.algorithm.LocalSearchType;
+import org.polytech.algorithm.localsearch.HillClimbingEchangeInter;
 import org.polytech.algorithm.localsearch.HillClimbingException;
 import org.polytech.algorithm.localsearch.LocalSearchFactory;
 import org.polytech.algorithm.tour.*;
@@ -68,7 +69,7 @@ public class RoutingController implements Initializable {
         this.initialAlgorithmComboBox.setValue(RANDOM);
 
         this.localSearchTypeComboBox.setItems(FXCollections.observableList(Arrays.stream(LocalSearchType.values()).toList()));
-        this.localSearchTypeComboBox.setValue(LocalSearchType.INTRA_ROUTE_REVERSE_CLIENT);
+        this.localSearchTypeComboBox.setValue(LocalSearchType.INTRA_ROUTE);
 
         this.mapGroup = new Group();
         this.map.getItems().add(mapGroup);
@@ -123,11 +124,11 @@ public class RoutingController implements Initializable {
         TableColumn<Client, Integer> yColumn = new TableColumn<>("Y");
         yColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getY()).asObject());
 
-        TableColumn<Client, String> readyTimeColumn = new TableColumn<>("Heure de début");
-        readyTimeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getReadyTime())));
+        TableColumn<Client, Integer> readyTimeColumn = new TableColumn<>("Heure de début");
+        readyTimeColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getReadyTime()).asObject());
 
-        TableColumn<Client, String> dueTimeColumn = new TableColumn<>("Heure de fin");
-        dueTimeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().getDueTime())));
+        TableColumn<Client, Integer> dueTimeColumn = new TableColumn<>("Heure de fin");
+        dueTimeColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getDueTime()).asObject());
 
         TableColumn<Client, Integer> demandColumn = new TableColumn<>("Demande");
         demandColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getDemand()).asObject());
@@ -208,7 +209,7 @@ public class RoutingController implements Initializable {
             }
             List<Client> clients = route.getClients();
 
-            Connector lineArrowFromBeginToFirstClient = new Connector(beginDepotRouteCircle, clientsCircle.get(clients.getFirst()));
+            Connector lineArrowFromBeginToFirstClient = new Connector(begin, clients.getFirst(), beginDepotRouteCircle, clientsCircle.get(clients.getFirst()));
             lineArrowFromBeginToFirstClient.setFill(color);
             this.mapGroup.getChildren().add(lineArrowFromBeginToFirstClient);
             this.connectors.add(lineArrowFromBeginToFirstClient);
@@ -218,13 +219,13 @@ public class RoutingController implements Initializable {
                 Client ancestor = clients.get(i - 1);
                 Client current = clients.get(i);
 
-                Connector lineArrowFromClientToClient = new Connector(clientsCircle.get(ancestor), clientsCircle.get(current));
+                Connector lineArrowFromClientToClient = new Connector(ancestor, current, clientsCircle.get(ancestor), clientsCircle.get(current));
                 lineArrowFromClientToClient.setFill(color);
                 this.mapGroup.getChildren().add(lineArrowFromClientToClient);
                 this.connectors.add(lineArrowFromClientToClient);
                 this.routeConnectors.get(route).add(lineArrowFromClientToClient);
             }
-            Connector lineArrowFromLastClientToBegin = new Connector(clientsCircle.get(clients.getLast()), beginDepotRouteCircle);
+            Connector lineArrowFromLastClientToBegin = new Connector(clients.getLast(), begin, clientsCircle.get(clients.getLast()), beginDepotRouteCircle);
             lineArrowFromLastClientToBegin.setFill(color);
             this.mapGroup.getChildren().add(lineArrowFromLastClientToBegin);
             this.connectors.add(lineArrowFromLastClientToBegin);

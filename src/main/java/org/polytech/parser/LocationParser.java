@@ -84,10 +84,13 @@ public class LocationParser {
                     entries[0],
                     Integer.parseInt(entries[1]),
                     Integer.parseInt(entries[2]),
-                    Integer.parseInt(entries[3]),
-                    Integer.parseInt(entries[4]),
+                    0,
+                    200,
+                    //Integer.parseInt(entries[3]),
+                    //Integer.parseInt(entries[4]),
                     Integer.parseInt(entries[5]),
-                    Integer.parseInt(entries[6])
+                    0
+                    //Integer.parseInt(entries[6])
             ));
             line = scanner.nextLine();
         }
