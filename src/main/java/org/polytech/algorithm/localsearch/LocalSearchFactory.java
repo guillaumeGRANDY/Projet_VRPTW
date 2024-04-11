@@ -7,20 +7,20 @@ public class LocalSearchFactory {
     public static Tour makeLocalSearch(Tour initial, LocalSearchType localSearchType) throws HillClimbingException {
         HillClimbing localSearch;
         switch (localSearchType) {
-            case INTRA_ROUTE -> {
+            case ECHANGE_INTRA -> {
                 localSearch = new HillClimbingEchangeIntra(initial);
             }
-            case INTRA_ROUTE_TWO_OPT -> {
-                localSearch = new HillClimbingIntra2Opt(initial);
-            }
-            case INTRA_ROUTE_RELOCATE -> {
-                localSearch = new HillClimbingRelocateIntra(initial);
-            }
-            case INTER_ROUTE_EXCHANGE -> {
+            case ECHANGE_INTER -> {
                 localSearch = new HillClimbingEchangeInter(initial);
             }
-            case INTER_RELOCATE -> {
+            case RELOCATE_INTRA -> {
+                localSearch = new HillClimbingRelocateIntra(initial);
+            }
+            case RELOCATE_INTER -> {
                 localSearch = new HillClimbingRelocateInter(initial);
+            }
+            case ECHANGE_GROUPE_INTER -> {
+                localSearch = new HillClimbingGroupeEchangeInter(initial);
             }
             default -> {
                 localSearch = new HillClimbingEchangeIntra(initial);

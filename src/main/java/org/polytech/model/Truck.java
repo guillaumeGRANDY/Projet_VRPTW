@@ -8,9 +8,12 @@ public class Truck {
 
     private int placeRemaning;
 
+    private int maxCapacity;
+
     public Truck(String id, int maxQuantity) {
         this.id = id;
         this.placeRemaning = maxQuantity;
+        this.maxCapacity=maxQuantity;
     }
 
     public Truck(int maxQuantity) {
@@ -21,6 +24,15 @@ public class Truck {
     public boolean useCapacity(int demand) {
         if(this.hasEnoughCapacity(demand)) {
             this.placeRemaning -= demand;
+            return true;
+        }
+        return false;
+    }
+
+    public boolean addCapacity(int capacityAdded)
+    {
+        if(this.placeRemaning+capacityAdded<=this.maxCapacity) {
+            this.placeRemaning += capacityAdded;
             return true;
         }
         return false;
@@ -44,9 +56,5 @@ public class Truck {
 
     public boolean hasEnoughCapacity(int demand) {
         return this.placeRemaning - demand >= 0;
-    }
-
-    public void addCapacity(int capacity) {
-        this.placeRemaning += capacity;
     }
 }

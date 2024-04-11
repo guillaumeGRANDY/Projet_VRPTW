@@ -69,7 +69,7 @@ public class RoutingController implements Initializable {
         this.initialAlgorithmComboBox.setValue(RANDOM);
 
         this.localSearchTypeComboBox.setItems(FXCollections.observableList(Arrays.stream(LocalSearchType.values()).toList()));
-        this.localSearchTypeComboBox.setValue(LocalSearchType.INTRA_ROUTE);
+        this.localSearchTypeComboBox.setValue(LocalSearchType.ECHANGE_INTRA);
 
         this.mapGroup = new Group();
         this.map.getItems().add(mapGroup);
@@ -165,6 +165,10 @@ public class RoutingController implements Initializable {
         TableColumn<Route, Double> distanceColumn = new TableColumn<>("Distance");
         distanceColumn.setCellValueFactory(cellData -> new SimpleDoubleProperty(cellData.getValue().distance()).asObject());
         this.routesTable.getColumns().add(distanceColumn);
+
+        TableColumn<Route, Integer> truckSpaceColumn = new TableColumn<>("Capacité courante camion");
+        truckSpaceColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getTruck().getPlaceRemaning()).asObject());
+        this.routesTable.getColumns().add(truckSpaceColumn);
 
         this.routesTable.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue != null) {
@@ -303,7 +307,7 @@ public class RoutingController implements Initializable {
 
     private void initFileTest() {
         try {
-            this.locationParser.parseFile("data101.vrp");
+            this.locationParser.parseFile("sample.vrp");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
