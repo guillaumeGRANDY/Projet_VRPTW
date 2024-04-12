@@ -28,6 +28,8 @@
 
                 <Button fx:id="startLocalSearchButton">Lancer recherche locale</Button>
                 <ComboBox fx:id="localSearchTypeComboBox"/>
+
+                <Button fx:id="startRecuitSimule">Lancer recuit simulé</Button>
             </HBox>
             <SplitPane fx:id="map">
             </SplitPane>
@@ -47,6 +49,9 @@
             <Tab text="Itinéraires" closable="false">
                 <TableView fx:id="routesTable">
                 </TableView>
+            </Tab>
+            <Tab text="Stats" closable="false">
+                <Label fx:id="totalDemand"></Label>
             </Tab>
         </TabPane>
     </SplitPane>

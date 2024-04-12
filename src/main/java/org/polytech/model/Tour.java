@@ -45,7 +45,10 @@ public class Tour {
                 && r2.getTruck().hasEnoughCapacity(-l2.client().getDemand() + l1.client().getDemand())) {
 
             r1.getLivraisons().set(il1, l2);
+            r1.getTruck().useCapacity(-l1.client().getDemand() + l2.client().getDemand());
+
             r2.getLivraisons().set(il2, l1);
+            r2.getTruck().useCapacity(-l2.client().getDemand() + l1.client().getDemand());
         }
     }
 
@@ -74,11 +77,11 @@ public class Tour {
         if (r2.getTruck().hasEnoughCapacity(l1.client().getDemand())) {
             r2.getLivraisons().add(indiceLivraisonRoute2, l1);
             r2.getTruck().useCapacity(l1.client().getDemand());
-            r1.getLivraisons().remove(l1);
+
+            r1.getLivraisons().remove(indiceLivraisonRoute1);
             r1.getTruck().addCapacity(l1.client().getDemand());
         }
-        if(r1.getLivraisons().isEmpty())
-        {
+        if(r1.getLivraisons().isEmpty()) {
             this.routes.remove(indexRoute1);
         }
     }

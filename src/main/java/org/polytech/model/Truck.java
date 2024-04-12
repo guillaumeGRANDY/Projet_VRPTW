@@ -31,7 +31,7 @@ public class Truck {
 
     public boolean addCapacity(int capacityAdded)
     {
-        if(this.placeRemaning+capacityAdded<=this.maxCapacity) {
+        if(this.placeRemaning + capacityAdded <= this.maxCapacity) {
             this.placeRemaning += capacityAdded;
             return true;
         }

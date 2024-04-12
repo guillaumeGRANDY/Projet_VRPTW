@@ -13,6 +13,7 @@ import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import org.polytech.App;
 import org.polytech.algorithm.LocalSearchType;
+import org.polytech.algorithm.globalsearch.SimulatedAnnealing;
 import org.polytech.algorithm.localsearch.HillClimbingEchangeInter;
 import org.polytech.algorithm.localsearch.HillClimbingException;
 import org.polytech.algorithm.localsearch.LocalSearchFactory;
@@ -31,6 +32,9 @@ import java.util.*;
 import static org.polytech.algorithm.tour.AlgorithmType.RANDOM;
 
 public class RoutingController implements Initializable {
+    public Label totalDemand;
+    @FXML
+    private Button startRecuitSimule;
     @FXML
     private Button startLocalSearchButton;
     @FXML
@@ -108,6 +112,22 @@ public class RoutingController implements Initializable {
                 alert.showAndWait();
             }
             this.routes = this.tour.getRoutes();
+            this.makeTourne();
+        });
+
+        this.startRecuitSimule.setOnAction(actionEvent -> {
+            if (this.tour == null) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Aucun tour n'a été généré");
+                alert.setContentText("Veuillez générer un tour avant de lancer la recherche locale");
+                alert.showAndWait();
+                return;
+            }
+
+            SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(1000, 0.95);
+            this.tour = simulatedAnnealing.explore(this.tour, 0.95);
+            this.routes = tour.getRoutes();
             this.makeTourne();
         });
     }
@@ -315,5 +335,10 @@ public class RoutingController implements Initializable {
         this.setClients(this.locationParser.getClients());
         this.setBegin(this.locationParser.getDepot());
         this.constraintTruck = new ConstraintTruck(this.locationParser.getMaxQuantity());
+        int totalDemand = 0;
+        for (Client client : this.locationParser.getClients()) {
+            totalDemand += client.getDemand();
+        }
+        this.totalDemand.setText(String.valueOf(totalDemand));
     }
 }
