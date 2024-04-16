@@ -18,7 +18,6 @@ public class AlgoTourneRandom extends AlgoTourne {
             Route route = this.affecterRoute();
             tour.add(route);
         }
-
         return tour;
     }
 
@@ -32,31 +31,13 @@ public class AlgoTourneRandom extends AlgoTourne {
 
         Location currentPostion = depot;
         while (this.clientsToServe.isEmpty() == false && indiceClient < this.clientsToServe.size()) {
-
-            if (this.clientsToServe.get(indiceClient).getDueTime() >= time + timeByDistance * currentPostion.distanceWith(this.clientsToServe.get(indiceClient))) {
-                boolean capacityIsUsed = truck.useCapacity(clientsToServe.get(indiceClient).getDemand());
-                if (capacityIsUsed) {
-                    currentPostion = this.clientsToServe.get(indiceClient);
-
-                    if (time < this.clientsToServe.get(indiceClient).getReadyTime() + timeByDistance * currentPostion.distanceWith(this.clientsToServe.get(indiceClient))) {
-                        //si le client n'est pas encore prêt à être livré, il s'y rend et attend
-                        time = this.clientsToServe.get(indiceClient).getReadyTime() + this.clientsToServe.get(indiceClient).getService();
-                        route.addLivraison(new Livraison(this.clientsToServe.get(indiceClient), time - this.clientsToServe.get(indiceClient).getService()));
-                    }
-                    else {
-                        time += this.clientsToServe.get(indiceClient).getService() + timeByDistance * currentPostion.distanceWith(this.clientsToServe.get(indiceClient));
-                        // le temps auquel on arrive
-                        route.addLivraison(new Livraison(this.clientsToServe.get(indiceClient), time - this.clientsToServe.get(indiceClient).getService()));
-                    }
-                    this.clientsToServe.remove(indiceClient);
-                } else {
-                    indiceClient++;
-                }
+            boolean capacityIsUsed = route.tryAddNewLivraison(new Livraison(this.clientsToServe.get(indiceClient), this.clientsToServe.get(indiceClient).getReadyTime() + timeByDistance * currentPostion.distanceWith(this.clientsToServe.get(indiceClient))));
+            if (capacityIsUsed) {
+                currentPostion = this.clientsToServe.remove(indiceClient);
             } else {
                 indiceClient++;
             }
         }
-
         return route;
     }
 }

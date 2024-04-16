@@ -26,7 +26,7 @@ public class HillClimbingRelocateIntra extends HillClimbing {
         for (int indiceLivraisonFrom = 0; indiceLivraisonFrom < route.getLivraisons().size(); indiceLivraisonFrom++) {
             for (int indiceLivraisonTo = 0; indiceLivraisonTo < route.getLivraisons().size(); indiceLivraisonTo++) {
                 siblingRoute = new Route(route);
-                siblingRoute.tryIntraRelocate(indiceLivraisonFrom, indiceLivraisonTo);
+                siblingRoute.tryRelocateIntra(indiceLivraisonFrom, indiceLivraisonTo);
                 if (siblingRoute.distance() < bestRoute.distance()) {
                     bestRoute = siblingRoute;
                 }

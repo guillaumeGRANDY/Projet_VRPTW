@@ -3,7 +3,6 @@ package org.polytech.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
 public class Route {
@@ -18,8 +17,8 @@ public class Route {
 
     public Route(Route route) {
         this.depot = route.depot;
-        this.livraisons = new ArrayList<>(route.getLivraisons());
-        this.truck = route.truck;
+        this.livraisons = new ArrayList<>(route.livraisons);
+        this.truck = new Truck(route.truck);
     }
 
     public Depot getBegin() {
@@ -30,9 +29,12 @@ public class Route {
         return this.livraisons.stream().map(Livraison::client).collect(Collectors.toList());
     }
 
-    public Truck getTruck()
-    {
+    public Truck getTruck() {
         return truck;
+    }
+
+    public int getWeight() {
+        return this.truck.getMaxCapacity() - this.truck.getPlaceRemaning();
     }
 
     public List<Livraison> getLivraisons() {
@@ -64,44 +66,21 @@ public class Route {
     }
 
     /**
-     * Ajoute un client à la tournée
-     *
-     * @param client
-     */
-    public void addLivraison(Livraison client) {
-        this.livraisons.add(client);
-    }
-
-    public void deleteLivraison(Livraison livraison) {
-        this.livraisons.remove(this.livraisons.indexOf(livraison));
-    }
-
-    /**
      * Transformation "échange entre 2 clients sur l'itinéraire"
      * O(n):
      *
      * @param i1 la livraison 1
      * @param i2 le livraison 2
      */
-    public void tryExchangeClientPosition(int i1, int i2) {
+    public void tryExchangeIntra(int i1, int i2) {
         Livraison l1 = livraisons.get(i1);
         Livraison l2 = livraisons.get(i2);
 
         livraisons.set(i1, l2);
         livraisons.set(i2, l1);
-
-        //livraisons.get(0).setHeureArrive(livraisons.get(0).client().getReadyTime());
-
-        //test de la validité
-//        for (int i = 1; i < livraisonsTest.size(); i++) {
-//            livraisonsTest.get(i).setHeureArrive(livraisonsTest.get(i-1).heureArrive() + livraisonsTest.get(i-1).client().getService() + 1.2 * livraisonsTest.get(i-1).client().distanceWith(livraisonsTest.get(i).client()));
-//            if(livraisonsTest.get(i).heureArrive() > livraisonsTest.get(i).client().getDueTime()) {
-//                return;
-//            }
-//        }
     }
 
-    public void tryIntraRelocate(int oldIndex, int newIndex) {
+    public void tryRelocateIntra(int oldIndex, int newIndex) {
         Livraison livraison = this.livraisons.get(oldIndex);
         this.livraisons.remove(oldIndex);
         this.livraisons.add(newIndex, livraison);
@@ -123,5 +102,79 @@ public class Route {
     public void reverseTroncon(int i, int j) {
         List<Livraison> tronconInverse = this.livraisons.subList(i, j + 1);
         Collections.reverse(tronconInverse);
+    }
+
+    public boolean couldAddNewLivraison(Livraison livraison) {
+        return this.getTruck().hasEnoughCapacity(livraison.client().getDemand());
+    }
+
+    public boolean couldAddNewLivraison(int value) {
+        return this.getTruck().hasEnoughCapacity(value);
+    }
+
+    public boolean couldAddNewLivraisons(List<Livraison> oldLivraisons, List<Livraison> livraisonsToAdd) {
+        int oldTotal = 0;
+        for (Integer demand : oldLivraisons.stream().map(Livraison::client).map(Client::getDemand).toList()) {
+            oldTotal += demand;
+        }
+
+        int newTotal = 0;
+        for (Integer demand : livraisonsToAdd.stream().map(Livraison::client).map(Client::getDemand).toList()) {
+            newTotal += demand;
+        }
+
+        return this.truck.hasEnoughCapacity(-newTotal + oldTotal);
+    }
+
+    public boolean couldAddNewLivraisons(int beginIndex, List<Livraison> livraisons) {
+        int total = 0;
+        for (Livraison livraison : livraisons) {
+            total += livraison.client().getDemand();
+        }
+        return this.truck.hasEnoughCapacity(total);
+    }
+
+    public boolean tryAddNewLivraison(Livraison livraison)
+    {
+        if(this.getTruck().useCapacity(livraison.client().getDemand())) {
+            this.livraisons.add(livraison);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean tryAddNewLivraison(Livraison livraison, int index)
+    {
+        if(this.getTruck().useCapacity(livraison.client().getDemand())) {
+            this.livraisons.add(index,livraison);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean tryAddNewLivraisons(int beginIndex, List<Livraison> livraisonsToAdd) {
+        if(this.couldAddNewLivraisons(beginIndex,livraisonsToAdd)) {
+            this.livraisons.addAll(beginIndex, livraisonsToAdd);
+            for (Livraison livraison : livraisonsToAdd) {
+                this.getTruck().useCapacity(livraison.client().getDemand());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void removeLivraison(int indexLivraison) {
+        this.livraisons.remove(indexLivraison);
+    }
+
+    public void removeLivraison(Livraison livraison) {
+        this.livraisons.remove(livraison);
+    }
+
+    public void removeLivraison(List<Livraison> livraisons) {
+
+        for (Livraison livraison : livraisons) {
+            this.removeLivraison(livraison);
+        }
     }
 }

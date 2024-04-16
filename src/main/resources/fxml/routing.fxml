@@ -52,6 +52,7 @@
             </Tab>
             <Tab text="Stats" closable="false">
                 <Label fx:id="totalDemand"></Label>
+                <Label fx:id="fitness"></Label>
             </Tab>
         </TabPane>
     </SplitPane>

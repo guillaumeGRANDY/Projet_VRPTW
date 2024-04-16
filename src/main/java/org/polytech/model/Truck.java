@@ -13,12 +13,19 @@ public class Truck {
     public Truck(String id, int maxQuantity) {
         this.id = id;
         this.placeRemaning = maxQuantity;
-        this.maxCapacity=maxQuantity;
+        this.maxCapacity = maxQuantity;
     }
 
     public Truck(int maxQuantity) {
         this.id = UUID.randomUUID().toString();
         this.placeRemaning = maxQuantity;
+    }
+
+    public Truck(Truck truck) {
+        this.id = truck.id;
+        this.placeRemaning = truck.placeRemaning;
+        this.maxCapacity = truck.maxCapacity;
+        this.time = truck.time;
     }
 
     public boolean useCapacity(int demand) {
@@ -38,6 +45,10 @@ public class Truck {
         return false;
     }
 
+    public void setPlaceRemaning(int placeRemaning) {
+        this.placeRemaning = placeRemaning;
+    }
+
     public void useTime(int time) {
         this.time += time;
     }
@@ -46,8 +57,12 @@ public class Truck {
         return this.time;
     }
 
+    public int getMaxCapacity() {
+        return maxCapacity;
+    }
+
     public int getPlaceRemaning() {
-        return placeRemaning;
+        return this.placeRemaning;
     }
 
     public boolean hasEnoughCapacity() {

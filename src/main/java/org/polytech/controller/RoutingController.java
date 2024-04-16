@@ -32,7 +32,10 @@ import java.util.*;
 import static org.polytech.algorithm.tour.AlgorithmType.RANDOM;
 
 public class RoutingController implements Initializable {
-    public Label totalDemand;
+    @FXML
+    private Label totalDemand;
+    @FXML
+    private Label fitness;
     @FXML
     private Button startRecuitSimule;
     @FXML
@@ -258,6 +261,7 @@ public class RoutingController implements Initializable {
             color = new Color(Math.random(), Math.random(), Math.random(), 1);
         }
         this.routesTable.setItems(FXCollections.observableList(this.tour.getRoutes()));
+        this.fitness.setText("Fitness: " + this.tour.distance());
     }
 
     private void initClientsCircle() {

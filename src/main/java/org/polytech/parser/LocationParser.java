@@ -48,12 +48,13 @@ public class LocationParser {
 
     public void parseFile(File file) throws IOException {
 
+        System.out.println("Parsing du fichier");
+
         String line = "";
         Scanner scanner = new Scanner(file);
 
         for (int i = 0; i < 7; i++) {  //skip les lignes inutiles du début
             line = scanner.nextLine();
-            System.out.println(line);
         }
 
         String[] entries = line.split(" ");
@@ -61,7 +62,6 @@ public class LocationParser {
 
         for (int i = 0; i < 3; i++) {  //skip les lignes inutiles du début
             line = scanner.nextLine();
-            System.out.println(line);
         }
 
         entries = line.split(" "); // assert that Data_Depot has 5 entries

@@ -18,7 +18,7 @@ public class HillClimbingEchangeInter extends HillClimbing {
                 for (int indiceLivraisonRoute1 = 0; indiceLivraisonRoute1 < bestTour.getRoutes().get(indexRoute1).getLivraisons().size(); indiceLivraisonRoute1++) {
                     for (int indiceLivraisonRoute2 = 0; indiceLivraisonRoute2 < bestTour.getRoutes().get(indexRoute2).getLivraisons().size(); indiceLivraisonRoute2++) {
                         siblingTour = new Tour(initial.getRoutes());
-                        siblingTour.tryInterExchange(indexRoute1, indiceLivraisonRoute1, indexRoute2, indiceLivraisonRoute2);
+                        siblingTour.tryExchangeInter(indexRoute1, indiceLivraisonRoute1, indexRoute2, indiceLivraisonRoute2);
                         if (siblingTour.distance() < bestTour.distance()) {
                             bestTour = siblingTour;
                         }

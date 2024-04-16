@@ -3,10 +3,6 @@ package org.polytech.algorithm.localsearch;
 import org.polytech.model.Route;
 import org.polytech.model.Tour;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
 public class HillClimbingEchangeIntra extends HillClimbing {
     public HillClimbingEchangeIntra(Tour initial) {
         super(initial);
@@ -36,7 +32,7 @@ public class HillClimbingEchangeIntra extends HillClimbing {
         for (int i = 0; i < route.getLivraisons().size(); i++) {
             for (int j = i + 1; j < route.getLivraisons().size(); j++) {
                 siblingRoute = new Route(route);
-                siblingRoute.tryExchangeClientPosition(i, j);
+                siblingRoute.tryExchangeIntra(i, j);
                 if (siblingRoute.distance() < bestRoute.distance()) {
                     bestRoute = siblingRoute;
                 }

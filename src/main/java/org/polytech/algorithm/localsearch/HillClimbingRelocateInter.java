@@ -3,8 +3,6 @@ package org.polytech.algorithm.localsearch;
 import org.polytech.model.Route;
 import org.polytech.model.Tour;
 
-import java.util.List;
-
 public class HillClimbingRelocateInter extends HillClimbing {
 
     public HillClimbingRelocateInter(Tour initial) {
@@ -20,7 +18,7 @@ public class HillClimbingRelocateInter extends HillClimbing {
                 for (int indiceLivraisonRoute1 = 0; indiceLivraisonRoute1 < initial.getRoutes().get(indexRoute1).getLivraisons().size(); indiceLivraisonRoute1++) {
                     for (int indiceLivraisonRoute2 = 0; indiceLivraisonRoute2 < initial.getRoutes().get(indexRoute2).getLivraisons().size(); indiceLivraisonRoute2++) {
                         siblingTour = new Tour(initial.getRoutes());
-                        siblingTour.tryInterRelocate(indexRoute1, indiceLivraisonRoute1, indexRoute2, indiceLivraisonRoute2);
+                        siblingTour.tryRelocateInter(indexRoute1, indiceLivraisonRoute1, indexRoute2, indiceLivraisonRoute2);
                         if (siblingTour.distance() < bestTour.distance()) {
                             return new Tour(siblingTour.getRoutes());
                         }

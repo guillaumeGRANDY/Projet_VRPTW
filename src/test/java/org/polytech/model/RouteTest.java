@@ -32,7 +32,7 @@ class RouteTest {
         Livraison l3 = new Livraison(c3, 40);
         route.addLivraison(l3);
 
-        route.tryExchangeClientPosition(0, 2);
+        route.tryExchangeIntra(0, 2);
 
         assertEquals(c3, route.getClients().getFirst());
         assertEquals(c1, route.getClients().getLast());

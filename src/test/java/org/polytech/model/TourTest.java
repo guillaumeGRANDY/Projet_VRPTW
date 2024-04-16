@@ -11,5 +11,7 @@ class TourTest {
         Depot depot = new Depot("1", 10, 10, 0, 200);
 
         Route route = new Route(depot, truck);
+        Client client1 = new Client("1", 1, 2, 0, 200, 10, 10);
+        route.tryAddNewLivraison(new Livraison(client1, 0));
     }
 }
