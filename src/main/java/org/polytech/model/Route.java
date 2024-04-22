@@ -123,7 +123,7 @@ public class Route {
             newTotal += demand;
         }
 
-        return this.truck.hasEnoughCapacity(-newTotal + oldTotal);
+        return this.truck.hasEnoughCapacity(-oldTotal + newTotal);
     }
 
     public boolean couldAddNewLivraisons(int beginIndex, List<Livraison> livraisons) {
@@ -153,7 +153,7 @@ public class Route {
     }
 
     public boolean tryAddNewLivraisons(int beginIndex, List<Livraison> livraisonsToAdd) {
-        if(this.couldAddNewLivraisons(beginIndex,livraisonsToAdd)) {
+        if(this.couldAddNewLivraisons(beginIndex, livraisonsToAdd)) {
             this.livraisons.addAll(beginIndex, livraisonsToAdd);
             for (Livraison livraison : livraisonsToAdd) {
                 this.getTruck().useCapacity(livraison.client().getDemand());
@@ -169,6 +169,7 @@ public class Route {
 
     public void removeLivraison(Livraison livraison) {
         this.livraisons.remove(livraison);
+        this.truck.addCapacity(livraison.client().getDemand());
     }
 
     public void removeLivraison(List<Livraison> livraisons) {

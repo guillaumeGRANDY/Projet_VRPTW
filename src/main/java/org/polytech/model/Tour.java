@@ -90,6 +90,10 @@ public class Tour {
         Route r1 = this.routes.get(indexRoute1);
         Route r2 = this.routes.get(indexRoute2);
 
+        if (indiceLivraisonRoute11 < 0 || indiceLivraisonRoute12 >= r1.getLivraisons().size() || indiceLivraisonRoute21 < 0 || indiceLivraisonRoute22 >= r2.getLivraisons().size()) {
+            throw new IllegalArgumentException("Index de livraison invalide");
+        }
+
         List<Livraison> subListLivraisonsRoute1;
         subListLivraisonsRoute1 = new ArrayList<>(r1.getLivraisons().subList(indiceLivraisonRoute11, indiceLivraisonRoute12+1));
 
