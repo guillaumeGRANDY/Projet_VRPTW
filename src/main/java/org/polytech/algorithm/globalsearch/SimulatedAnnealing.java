@@ -61,6 +61,7 @@ public class SimulatedAnnealing {
     protected Tour selectRandomSibling(Tour previous) {
         Tour newTour = new Tour(previous);
         LocalSearchType randomSiblingType= LocalSearchType.values()[this.random.nextInt(LocalSearchType.values().length)];
+        
 
         switch (randomSiblingType) {
             case ECHANGE_INTRA -> {
@@ -69,7 +70,7 @@ public class SimulatedAnnealing {
 
                 Route route = newTour.getRoutes().get(randomIndexTour);
                 int numberOfLivraisons = route.getLivraisons().size();
-                if(numberOfLivraisons == 1) {
+                if (numberOfLivraisons == 1) {
                     return newTour;
                 }
 
@@ -88,12 +89,12 @@ public class SimulatedAnnealing {
                 Route route = newTour.getRoutes().get(randomIndexTour);
                 int numberOfLivraisons = route.getLivraisons().size();
 
-                if(numberOfLivraisons == 1) {
+                if (numberOfLivraisons == 1) {
                     return newTour;
                 }
 
                 int oldIndexClient1 = this.random.nextInt(numberOfLivraisons);
-                int newIndexClient1  = this.random.nextInt(numberOfLivraisons);
+                int newIndexClient1 = this.random.nextInt(numberOfLivraisons);
                 while (oldIndexClient1 == newIndexClient1) {
                     newIndexClient1 = this.random.nextInt(numberOfLivraisons);
                 }
@@ -103,38 +104,41 @@ public class SimulatedAnnealing {
 
             case RELOCATE_INTER -> {
                 int numberOfRoutes = newTour.getRoutes().size();
-                if(numberOfRoutes <= 1) {
+                if (numberOfRoutes <= 1) {
                     return newTour;
                 }
 
-                int indexRandomRoute1 = this.random.nextInt(numberOfRoutes);
-                int indexRandomRoute2 = this.random.nextInt(numberOfRoutes);
-                while (indexRandomRoute1 == indexRandomRoute2) {
-                    indexRandomRoute2 = this.random.nextInt(numberOfRoutes);
+                int indexRoute1 = this.random.nextInt(numberOfRoutes);
+                int indexRoute2 = this.random.nextInt(numberOfRoutes);
+                while (indexRoute1 == indexRoute2) {
+                    indexRoute2 = this.random.nextInt(numberOfRoutes);
                 }
+                
 
-                int totalLivraisonsRoute1 = newTour.getRoutes().get(indexRandomRoute1).getLivraisons().size();
+                int totalLivraisonsRoute1 = newTour.getRoutes().get(indexRoute1).getLivraisons().size();
                 int indexRandomLivraisonRoute1 = this.random.nextInt(totalLivraisonsRoute1);
 
-                int totalLivraisonsRoute2 = newTour.getRoutes().get(indexRandomRoute2).getLivraisons().size();
+                int totalLivraisonsRoute2 = newTour.getRoutes().get(indexRoute2).getLivraisons().size();
                 int indexRandomLivraisonRoute2 = this.random.nextInt(totalLivraisonsRoute2);
-                newTour.tryRelocateInter(indexRandomRoute1, indexRandomLivraisonRoute1, indexRandomRoute2, indexRandomLivraisonRoute2);
+
+                newTour.tryRelocateInter(indexRoute1, indexRandomLivraisonRoute1, indexRoute2, indexRandomLivraisonRoute2);
 
             }
+
             case ECHANGE_GROUPE_INTER -> {
                 int numberOfRoutes = newTour.getRoutes().size();
                 if(numberOfRoutes <= 1) {
                     return newTour;
                 }
 
-                int indexRandomRoute1 = this.random.nextInt(numberOfRoutes);
-                int indexRandomRoute2 = this.random.nextInt(numberOfRoutes);
-                while (indexRandomRoute1 == indexRandomRoute2) {
-                    indexRandomRoute2 = this.random.nextInt(numberOfRoutes);
+                int indexRoute1 = this.random.nextInt(numberOfRoutes);
+                int indexRoute2 = this.random.nextInt(numberOfRoutes);
+                while (indexRoute1 == indexRoute2) {
+                    indexRoute2 = this.random.nextInt(numberOfRoutes);
                 }
 
-                int totalLivraisonsRoute1 = newTour.getRoutes().get(indexRandomRoute1).getLivraisons().size();
-                int totalLivraisonsRoute2 = newTour.getRoutes().get(indexRandomRoute2).getLivraisons().size();
+                int totalLivraisonsRoute1 = newTour.getRoutes().get(indexRoute1).getLivraisons().size();
+                int totalLivraisonsRoute2 = newTour.getRoutes().get(indexRoute2).getLivraisons().size();
 
                 if(totalLivraisonsRoute1 <= 1 || totalLivraisonsRoute2 <= 1)
                 {
@@ -147,8 +151,14 @@ public class SimulatedAnnealing {
                 int indexRandomLivraisonRoute21 = this.random.nextInt(0,totalLivraisonsRoute2-1);
                 int indexRandomLivraisonRoute22 = this.random.nextInt(indexRandomLivraisonRoute21+1,totalLivraisonsRoute2);
 
-                newTour.tryInterGroupeExchange(indexRandomRoute1, indexRandomLivraisonRoute11,indexRandomLivraisonRoute12,indexRandomRoute2,indexRandomLivraisonRoute21,indexRandomLivraisonRoute22);
+                newTour.tryInterGroupeExchange(indexRoute1, indexRandomLivraisonRoute11,indexRandomLivraisonRoute12,indexRoute2,indexRandomLivraisonRoute21,indexRandomLivraisonRoute22);
             }
+
+        }
+
+        if(newTour.getTotalWeight()!=previous.getTotalWeight())
+        {
+            System.out.println("Problème pour "+randomSiblingType+": "+previous.distance()+" -> "+newTour.distance());
         }
 
         return newTour;
