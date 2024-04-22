@@ -53,8 +53,8 @@ public class Tour {
 
         if (r1.couldAddNewLivraison(-l1.client().getDemand() + l2.client().getDemand()) && r2.couldAddNewLivraison(l1.client().getDemand() - l2.client().getDemand()))
         {
-            r1.removeLivraison(l1);
-            r2.removeLivraison(l2);
+            r1.removeLivraison(il1);
+            r2.removeLivraison(il2);
 
             r1.tryAddNewLivraison(l2, il1);
             r2.tryAddNewLivraison(l1, il2);
@@ -73,7 +73,6 @@ public class Tour {
 
         if(r2.tryAddNewLivraison(l,indiceLivraisonRoute2)) {
             r1.removeLivraison(indiceLivraisonRoute1);
-            r1.getTruck().addCapacity(l.client().getDemand());
         }
 
         if(r1.getLivraisons().isEmpty()) {
@@ -94,46 +93,16 @@ public class Tour {
             throw new IllegalArgumentException("Index de livraison invalide");
         }
 
-        List<Livraison> subListLivraisonsRoute1;
-        subListLivraisonsRoute1 = new ArrayList<>(r1.getLivraisons().subList(indiceLivraisonRoute11, indiceLivraisonRoute12+1));
+        List<Livraison> subListLivraisonsRoute1 = new ArrayList<>(r1.getLivraisons().subList(indiceLivraisonRoute11, indiceLivraisonRoute12+1));
+        List<Livraison> subListLivraisonRoute2 = new ArrayList<>(r2.getLivraisons().subList(indiceLivraisonRoute21, indiceLivraisonRoute22+1));
 
-        List<Livraison> subListLivraisonsRoute2;
-        subListLivraisonsRoute2 = new ArrayList<>(r2.getLivraisons().subList(indiceLivraisonRoute21, indiceLivraisonRoute22+1));
+        if(r1.couldAddNewLivraisons(subListLivraisonsRoute1, subListLivraisonRoute2) &&
+                r2.couldAddNewLivraisons(subListLivraisonRoute2, subListLivraisonsRoute1)
+        ) {
+            r1.removeLivraison(indiceLivraisonRoute11, indiceLivraisonRoute12);
+            r2.removeLivraison(indiceLivraisonRoute21, indiceLivraisonRoute22);
 
-        int poidListLivraisons1=0;
-        int poidListLivraisons2=0;
-        
-        for(int i=0;i<subListLivraisonsRoute1.size();i++)
-        {
-            poidListLivraisons1+=subListLivraisonsRoute1.get(i).client().getDemand();
-        }
-
-        for(int i=0;i<subListLivraisonsRoute2.size();i++)
-        {
-            poidListLivraisons2+=subListLivraisonsRoute2.get(i).client().getDemand();
-        }
-
-//        if(r1.couldAddNewLivraisons(subListLivraisonsRoute1, subListLivraisonsRoute2) &&
-//                r2.couldAddNewLivraisons(subListLivraisonsRoute2, subListLivraisonsRoute1)
-//        ) {
-//            r1.tryAddNewLivraisons(indiceLivraisonRoute11, subListLivraisonsRoute2);
-//            r2.tryAddNewLivraisons(indiceLivraisonRoute21, subListLivraisonsRoute1);
-//
-//            r1.removeLivraison(subListLivraisonsRoute1);
-//            r2.removeLivraison(subListLivraisonsRoute2);
-//        }
-
-        if(r1.getTruck().hasEnoughCapacity(-poidListLivraisons1+poidListLivraisons2) &&
-            r2.getTruck().hasEnoughCapacity(poidListLivraisons1-poidListLivraisons2))
-        {
-
-            r1.removeLivraison(subListLivraisonsRoute1);
-            r2.removeLivraison(subListLivraisonsRoute2);
-
-            r1.getTruck().addCapacity(poidListLivraisons1);
-            r2.getTruck().addCapacity(poidListLivraisons2);
-
-            r1.tryAddNewLivraisons(indiceLivraisonRoute11, subListLivraisonsRoute2);
+            r1.tryAddNewLivraisons(indiceLivraisonRoute11, subListLivraisonRoute2);
             r2.tryAddNewLivraisons(indiceLivraisonRoute21, subListLivraisonsRoute1);
         }
     }
