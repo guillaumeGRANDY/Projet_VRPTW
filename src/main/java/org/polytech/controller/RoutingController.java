@@ -129,7 +129,7 @@ public class RoutingController implements Initializable {
             }
 
             SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(1000, 0.95);
-            this.tour = simulatedAnnealing.explore(this.tour, 0.95);
+            this.tour = simulatedAnnealing.explore(this.tour, 150);
             this.routes = tour.getRoutes();
             this.makeTourne();
         });
