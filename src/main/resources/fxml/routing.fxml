@@ -30,6 +30,8 @@
                 <ComboBox fx:id="localSearchTypeComboBox"/>
 
                 <Button fx:id="startRecuitSimule">Lancer recuit simulé</Button>
+
+                <Button fx:id="startTabuSearch">Lancer méthode tabou</Button>
             </HBox>
             <SplitPane fx:id="map">
             </SplitPane>

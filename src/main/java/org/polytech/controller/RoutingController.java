@@ -14,6 +14,7 @@ import javafx.stage.FileChooser;
 import org.polytech.App;
 import org.polytech.algorithm.LocalSearchType;
 import org.polytech.algorithm.globalsearch.SimulatedAnnealing;
+import org.polytech.algorithm.globalsearch.TabuSearch;
 import org.polytech.algorithm.localsearch.HillClimbingEchangeInter;
 import org.polytech.algorithm.localsearch.HillClimbingException;
 import org.polytech.algorithm.localsearch.LocalSearchFactory;
@@ -38,6 +39,8 @@ public class RoutingController implements Initializable {
     private Label fitness;
     @FXML
     private Button startRecuitSimule;
+    @FXML
+    private Button startTabuSearch;
     @FXML
     private Button startLocalSearchButton;
     @FXML
@@ -130,6 +133,22 @@ public class RoutingController implements Initializable {
 
             SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(1000, 0.96);
             this.tour = simulatedAnnealing.explore(this.tour, 0.5);
+            this.routes = tour.getRoutes();
+            this.makeTourne();
+        });
+
+        this.startTabuSearch.setOnAction(actionEvent -> {
+            if (this.tour == null) {
+                Alert alert = new Alert(Alert.AlertType.ERROR);
+                alert.setTitle("Erreur");
+                alert.setHeaderText("Aucun tour n'a été généré");
+                alert.setContentText("Veuillez générer un tour avant de lancer la recherche locale");
+                alert.showAndWait();
+                return;
+            }
+
+            TabuSearch tabuSearch = new TabuSearch();
+            this.tour = tabuSearch.explore(this.tour, 10,100);
             this.routes = tour.getRoutes();
             this.makeTourne();
         });
