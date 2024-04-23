@@ -148,7 +148,7 @@ public class RoutingController implements Initializable {
             }
 
             TabuSearch tabuSearch = new TabuSearch();
-            this.tour = tabuSearch.explore(this.tour, 10,100);
+            this.tour = tabuSearch.explore(this.tour, 100,1000);
             this.routes = tour.getRoutes();
             this.makeTourne();
         });

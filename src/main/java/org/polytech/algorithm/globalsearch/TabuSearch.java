@@ -76,7 +76,6 @@ public class TabuSearch {
                     }
                 }
             }
-            indexRoute++;
         }
 
         //Echange inter
@@ -113,17 +112,16 @@ public class TabuSearch {
                     if (initialDistance-distanceBefore+siblingRoute.distance() < bestDistance &&
                     this.isAllowed(LocalSearchType.RELOCATE_INTRA, Arrays.asList(indexRoute,indexLivraison1,indexLivraison2))) {
                         bestTour = new Tour(initialTour);
-                        bestTour.getRoutes().set(indexRoute,siblingRoute);
-                        bestDistance=initialDistance-distanceBefore+siblingRoute.distance();
-                        operateurBestTour=new Pair<>(LocalSearchType.RELOCATE_INTRA, Arrays.asList(indexRoute,indexLivraison1,indexLivraison2));
+                        bestTour.getRoutes().set(indexRoute, siblingRoute);
+                        bestDistance = initialDistance - distanceBefore + siblingRoute.distance();
+                        operateurBestTour = new Pair<>(LocalSearchType.RELOCATE_INTRA, Arrays.asList(indexRoute, indexLivraison1, indexLivraison2));
                     }
                 }
             }
-            indexRoute++;
         }
 
         //Relocate Inter
-        for (int indexRoute1 = 0; indexRoute1 < initialTour.getRoutes().size(); indexRoute1++) {
+        for (int indexRoute1 = 0; indexRoute1 < initialTour.getRoutes().size()-1; indexRoute1++) {
             for (int indexRoute2 = indexRoute1 + 1; indexRoute2 < initialTour.getRoutes().size(); indexRoute2++) {
                 for (int indiceLivraisonRoute1 = 0; indiceLivraisonRoute1 < initialTour.getRoutes().get(indexRoute1).getLivraisons().size(); indiceLivraisonRoute1++) {
                     for (int indiceLivraisonRoute2 = 0; indiceLivraisonRoute2 < initialTour.getRoutes().get(indexRoute2).getLivraisons().size(); indiceLivraisonRoute2++) {
@@ -133,11 +131,10 @@ public class TabuSearch {
                         siblingTour.tryRelocateInter(indexRoute1, indiceLivraisonRoute1, indexRoute2, indiceLivraisonRoute2);
 
                         if (siblingTour.distance() < bestDistance &&
-                        this.isAllowed(LocalSearchType.RELOCATE_INTER, Arrays.asList(indexRoute1, indexRoute2, indiceLivraisonRoute1, indiceLivraisonRoute2))) {
+                                this.isAllowed(LocalSearchType.RELOCATE_INTER, Arrays.asList(indexRoute1, indexRoute2, indiceLivraisonRoute1, indiceLivraisonRoute2))) {
                             bestTour = siblingTour;
                             bestDistance = siblingTour.distance();
                             operateurBestTour = new Pair<>(LocalSearchType.RELOCATE_INTER, Arrays.asList(indexRoute1, indexRoute2, indiceLivraisonRoute1, indiceLivraisonRoute2));
-
                         }
                     }
                 }
@@ -225,6 +222,7 @@ public class TabuSearch {
                                 bestTour = siblingTour;
                                 bestDistance = siblingTour.distance();
                                 operateurBestTour = new Pair<>(LocalSearchType.RELOCATE_GROUPE_INTER, Arrays.asList(indexRoute1,indiceLivraison1,indiceLivraison2,indexRoute2,indiceLivraisonDestination));
+                                System.out.println("bestDistance -> "+bestDistance);
                             }
                         }
                     }
@@ -234,11 +232,11 @@ public class TabuSearch {
 
         if(bestDistance>=initialDistance)
         {
-            System.out.println("Aucune meilleur solution n'a été trouvée, remonté et ajout de l'opérteur à la liste de tabou "+operateurBestTour.getKey()+": "+operateurBestTour.getValue());
+            System.out.println("Aucune meilleur solution n'a été trouvée, remonté et ajout de l'opérateur à la liste de tabou "+operateurBestTour.getKey()+": "+operateurBestTour.getValue()+" de "+initialDistance+" -> "+bestDistance);
             addTabou(operateurBestTour);
         }
         else {
-            System.out.println(operateurBestTour.getKey()+" "+operateurBestTour.getValue());
+            System.out.println(operateurBestTour.getKey()+" "+operateurBestTour.getValue()+" de "+initialDistance+" -> "+bestDistance);
         }
 
         return bestTour;
