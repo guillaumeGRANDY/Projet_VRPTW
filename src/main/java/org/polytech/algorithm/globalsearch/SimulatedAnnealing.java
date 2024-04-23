@@ -8,11 +8,9 @@ import java.util.Random;
 
 public class SimulatedAnnealing {
     private int maxTemperatureChange;
-    private int movesAtTemperatureTk = 10000;
+    private int movesAtTemperatureTk = 500000;
     private double mu;
     private Random random;
-
-    private int weightStart;
 
     public SimulatedAnnealing(int maxTemperatureChange, double mu) {
         this.maxTemperatureChange = maxTemperatureChange;
@@ -27,22 +25,18 @@ public class SimulatedAnnealing {
         Tour currentTour=new Tour(initialSolution.getRoutes());
         double distance;
         double p;
-        weightStart= minTour.getTotalWeight();
 
         double currentTemperature = initialTemperature;
-
-        for (int i = 0; i <= this.maxTemperatureChange; i++) {
+        int nbTemp = (int)(Math.log(Math.log(0.8) / Math.log(0.01))/Math.log(mu));
+        for (int i = 0; i <= nbTemp; i++) {
             for (int j = 1; j <= this.movesAtTemperatureTk; j++) {
                 siblingTour = selectRandomSibling(minTour);
                 distance = siblingTour.distance() - currentTour.distance();
+
                 if(distance <= 0) {
                     currentTour = new Tour(siblingTour.getRoutes());
                     if (currentTour.distance() < minTour.distance()) {
                         minTour = currentTour;
-                        if(weightStart != minTour.getTotalWeight())
-                        {
-                            weightStart= minTour.getTotalWeight();
-                        }
                     }
                 }
                 else {
@@ -83,6 +77,29 @@ public class SimulatedAnnealing {
 
                 route.tryExchangeIntra(indexClient1, indexClient2);
             }
+            case ECHANGE_INTER -> {
+                int numberOfRoutes = newTour.getRoutes().size();
+                if(numberOfRoutes <= 1) {
+                    return newTour;
+                }
+
+                int indexRandomRoute1 = this.random.nextInt(numberOfRoutes);
+                int indexRandomRoute2 = this.random.nextInt(numberOfRoutes);
+                while (indexRandomRoute1 == indexRandomRoute2) {
+                    indexRandomRoute2 = this.random.nextInt(numberOfRoutes);
+                }
+
+                int totalLivraisonsRoute1 = newTour.getRoutes().get(indexRandomRoute1).getLivraisons().size();
+                int totalLivraisonsRoute2 = newTour.getRoutes().get(indexRandomRoute2).getLivraisons().size();
+                if(totalLivraisonsRoute1 <= 1 || totalLivraisonsRoute2 <= 1) {
+                    return newTour;
+                }
+
+                int indexRandomLivraisonRoute1 = this.random.nextInt(totalLivraisonsRoute1);
+                int indexRandomLivraisonRoute2 = this.random.nextInt(totalLivraisonsRoute2);
+
+                newTour.tryExchangeInter(indexRandomRoute1, indexRandomLivraisonRoute1, indexRandomRoute2, indexRandomLivraisonRoute2);
+            }
             case RELOCATE_INTRA -> {
                 int randomIndexTour = this.random.nextInt(numberOfRoutes);
 
@@ -115,9 +132,12 @@ public class SimulatedAnnealing {
                 
 
                 int totalLivraisonsRoute1 = newTour.getRoutes().get(indexRoute1).getLivraisons().size();
-                int indexRandomLivraisonRoute1 = this.random.nextInt(totalLivraisonsRoute1);
-
                 int totalLivraisonsRoute2 = newTour.getRoutes().get(indexRoute2).getLivraisons().size();
+                if(totalLivraisonsRoute1 <= 1 || totalLivraisonsRoute2 <= 1) {
+                    return newTour;
+                }
+
+                int indexRandomLivraisonRoute1 = this.random.nextInt(totalLivraisonsRoute1);
                 int indexRandomLivraisonRoute2 = this.random.nextInt(totalLivraisonsRoute2);
 
                 newTour.tryRelocateInter(indexRoute1, indexRandomLivraisonRoute1, indexRoute2, indexRandomLivraisonRoute2);
@@ -138,8 +158,7 @@ public class SimulatedAnnealing {
                 int totalLivraisonsRoute1 = newTour.getRoutes().get(indexRoute1).getLivraisons().size();
                 int totalLivraisonsRoute2 = newTour.getRoutes().get(indexRoute2).getLivraisons().size();
 
-                if(totalLivraisonsRoute1 <= 1 || totalLivraisonsRoute2 <= 1)
-                {
+                if(totalLivraisonsRoute1 <= 1 || totalLivraisonsRoute2 <= 1) {
                     return newTour;
                 }
 

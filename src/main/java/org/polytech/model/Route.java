@@ -123,7 +123,7 @@ public class Route {
             newTotal += demand;
         }
 
-        return this.truck.hasEnoughCapacity(-newTotal + oldTotal);
+        return this.truck.hasEnoughCapacity(-oldTotal + newTotal);
     }
 
     public boolean couldAddNewLivraisons(int beginIndex, List<Livraison> livraisons) {
@@ -153,7 +153,7 @@ public class Route {
     }
 
     public boolean tryAddNewLivraisons(int beginIndex, List<Livraison> livraisonsToAdd) {
-        if(this.couldAddNewLivraisons(beginIndex,livraisonsToAdd)) {
+        if(this.couldAddNewLivraisons(beginIndex, livraisonsToAdd)) {
             this.livraisons.addAll(beginIndex, livraisonsToAdd);
             for (Livraison livraison : livraisonsToAdd) {
                 this.getTruck().useCapacity(livraison.client().getDemand());
@@ -180,17 +180,30 @@ public class Route {
     }
 
     public void removeLivraison(int indexLivraison) {
-        this.livraisons.remove(indexLivraison);
+        Livraison removed = this.livraisons.remove(indexLivraison);
+        this.truck.addCapacity(removed.client().getDemand());
     }
 
     public void removeLivraison(Livraison livraison) {
         this.livraisons.remove(livraison);
+        this.truck.addCapacity(livraison.client().getDemand());
     }
 
     public void removeLivraison(List<Livraison> livraisons) {
 
         for (Livraison livraison : livraisons) {
             this.removeLivraison(livraison);
+        }
+    }
+
+    public void removeLivraison(int beginIndex, int endIndex) {
+        Livraison remove;
+        int totalToRemove = endIndex - beginIndex + 1;
+        int totalRemove = 0;
+        while (totalRemove < totalToRemove) {
+            remove = this.livraisons.remove(beginIndex);
+            this.truck.addCapacity(remove.client().getDemand());
+            totalRemove++;
         }
     }
 }
