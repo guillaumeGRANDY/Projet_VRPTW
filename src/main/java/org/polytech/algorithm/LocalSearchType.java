@@ -9,6 +9,5 @@ public enum LocalSearchType {
     ECHANGE_GROUPE_INTER,
     ECHANGE_GROUPE_INTRA,
     RELOCATE_GROUPE_INTER,
-
     MERGE,
 }
