@@ -78,7 +78,6 @@ public class SimulatedAnnealing {
                 route.tryExchangeIntra(indexClient1, indexClient2);
             }
             case ECHANGE_INTER -> {
-                int numberOfRoutes = newTour.getRoutes().size();
                 if(numberOfRoutes <= 1) {
                     return newTour;
                 }
@@ -184,11 +183,50 @@ public class SimulatedAnnealing {
 
                 r.tryIntraGroupeExchange(indiceOld1,indiceOld2,indiceNew);
             }
+            case RELOCATE_GROUPE_INTER -> {
+                if(numberOfRoutes <= 1) {
+                    return newTour;
+                }
+
+                int indexRoute1 = this.random.nextInt(numberOfRoutes);
+                int indexRoute2 = this.random.nextInt(numberOfRoutes);
+                while (indexRoute1 == indexRoute2) {
+                    indexRoute2 = this.random.nextInt(numberOfRoutes);
+                }
+
+                int totalLivraisonsRoute1 = newTour.getRoutes().get(indexRoute1).getLivraisons().size();
+                int totalLivraisonsRoute2 = newTour.getRoutes().get(indexRoute2).getLivraisons().size();
+
+                if(totalLivraisonsRoute1 <= 1 || totalLivraisonsRoute2 <= 1) {
+                    return newTour;
+                }
+
+                int indiceOld1=this.random.nextInt(totalLivraisonsRoute1-1);
+                int indiceOld2=this.random.nextInt(indiceOld1,totalLivraisonsRoute1);
+                int indiceNew=this.random.nextInt(totalLivraisonsRoute2);
+
+                newTour.tryRelocateGroupeInter(indexRoute1, indiceOld1, indiceOld2, indexRoute2, indiceNew);
+            }
+            case MERGE -> {
+                if(numberOfRoutes <= 1) {
+                    return newTour;
+                }
+
+                int indexRoute1 = this.random.nextInt(numberOfRoutes);
+                int indexRoute2 = this.random.nextInt(numberOfRoutes);
+                while (indexRoute1 == indexRoute2) {
+                    indexRoute2 = this.random.nextInt(numberOfRoutes);
+                }
+
+                int indice=this.random.nextInt(newTour.getRoutes().get(indexRoute2).getLivraisons().size());
+
+                newTour.tryMerge(indexRoute1, indexRoute2, indice);
+            }
         }
 
         if(newTour.getTotalWeight()!=previous.getTotalWeight())
         {
-            System.out.println("Problème pour "+randomSiblingType+": "+previous.distance()+" -> "+newTour.distance());
+            System.out.println("Problème pour "+randomSiblingType+": "+previous.getTotalWeight()+" -> "+newTour.getTotalWeight());
         }
 
         return newTour;
