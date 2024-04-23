@@ -109,16 +109,6 @@ public class Tour {
             poidListLivraisons2+=subListLivraisonsRoute2.get(i).client().getDemand();
         }
 
-//        if(r1.couldAddNewLivraisons(subListLivraisonsRoute1, subListLivraisonsRoute2) &&
-//                r2.couldAddNewLivraisons(subListLivraisonsRoute2, subListLivraisonsRoute1)
-//        ) {
-//            r1.tryAddNewLivraisons(indiceLivraisonRoute11, subListLivraisonsRoute2);
-//            r2.tryAddNewLivraisons(indiceLivraisonRoute21, subListLivraisonsRoute1);
-//
-//            r1.removeLivraison(subListLivraisonsRoute1);
-//            r2.removeLivraison(subListLivraisonsRoute2);
-//        }
-
         if(r1.getTruck().hasEnoughCapacity(-poidListLivraisons1+poidListLivraisons2) &&
             r2.getTruck().hasEnoughCapacity(poidListLivraisons1-poidListLivraisons2))
         {

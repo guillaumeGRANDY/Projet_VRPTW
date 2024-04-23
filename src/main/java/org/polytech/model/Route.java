@@ -163,6 +163,22 @@ public class Route {
         return false;
     }
 
+    public void tryIntraGroupeExchange(int indiceLivraisonOld1, int indiceLivraisonOld2, int indiceLivraisonNew) {
+        List<Livraison> subListLivraisonsRoute;
+        subListLivraisonsRoute = new ArrayList<>(livraisons.subList(indiceLivraisonOld1, indiceLivraisonOld2));
+
+        livraisons.removeAll(subListLivraisonsRoute);
+
+        if (indiceLivraisonNew > livraisons.size())
+        {
+            livraisons.addAll(subListLivraisonsRoute);
+        }
+        else
+        {
+            livraisons.addAll(indiceLivraisonNew, subListLivraisonsRoute);
+        }
+    }
+
     public void removeLivraison(int indexLivraison) {
         this.livraisons.remove(indexLivraison);
     }

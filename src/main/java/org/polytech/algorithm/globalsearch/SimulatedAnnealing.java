@@ -38,7 +38,7 @@ public class SimulatedAnnealing {
                 if(distance <= 0) {
                     currentTour = new Tour(siblingTour.getRoutes());
                     if (currentTour.distance() < minTour.distance()) {
-                        minTour = new Tour(currentTour.getRoutes());
+                        minTour = currentTour;
                         if(weightStart != minTour.getTotalWeight())
                         {
                             weightStart= minTour.getTotalWeight();
@@ -48,7 +48,7 @@ public class SimulatedAnnealing {
                 else {
                     p = this.random.nextDouble(0, 1);
                     if(p <= Math.exp(-distance / currentTemperature)) {
-                        currentTour = siblingTour;
+                        minTour = siblingTour;
                     }
                 }
             }
@@ -61,11 +61,12 @@ public class SimulatedAnnealing {
     protected Tour selectRandomSibling(Tour previous) {
         Tour newTour = new Tour(previous);
         LocalSearchType randomSiblingType= LocalSearchType.values()[this.random.nextInt(LocalSearchType.values().length)];
-        
+
+        int numberOfRoutes = newTour.getRoutes().size();
 
         switch (randomSiblingType) {
             case ECHANGE_INTRA -> {
-                int numberOfRoutes = newTour.getRoutes().size();
+
                 int randomIndexTour = this.random.nextInt(numberOfRoutes);
 
                 Route route = newTour.getRoutes().get(randomIndexTour);
@@ -83,7 +84,6 @@ public class SimulatedAnnealing {
                 route.tryExchangeIntra(indexClient1, indexClient2);
             }
             case RELOCATE_INTRA -> {
-                int numberOfRoutes = newTour.getRoutes().size();
                 int randomIndexTour = this.random.nextInt(numberOfRoutes);
 
                 Route route = newTour.getRoutes().get(randomIndexTour);
@@ -103,7 +103,6 @@ public class SimulatedAnnealing {
             }
 
             case RELOCATE_INTER -> {
-                int numberOfRoutes = newTour.getRoutes().size();
                 if (numberOfRoutes <= 1) {
                     return newTour;
                 }
@@ -126,7 +125,6 @@ public class SimulatedAnnealing {
             }
 
             case ECHANGE_GROUPE_INTER -> {
-                int numberOfRoutes = newTour.getRoutes().size();
                 if(numberOfRoutes <= 1) {
                     return newTour;
                 }
@@ -153,7 +151,20 @@ public class SimulatedAnnealing {
 
                 newTour.tryInterGroupeExchange(indexRoute1, indexRandomLivraisonRoute11,indexRandomLivraisonRoute12,indexRoute2,indexRandomLivraisonRoute21,indexRandomLivraisonRoute22);
             }
+            case ECHANGE_GROUPE_INTRA -> {
+                Route r=newTour.getRoutes().get(this.random.nextInt(numberOfRoutes));
 
+                if(r.getClients().size()<=1)
+                {
+                    return newTour;
+                }
+
+                int indiceOld1=this.random.nextInt(r.getClients().size()-1);
+                int indiceOld2=this.random.nextInt(indiceOld1,r.getClients().size());
+                int indiceNew=this.random.nextInt(r.getClients().size());
+
+                r.tryIntraGroupeExchange(indiceOld1,indiceOld2,indiceNew);
+            }
         }
 
         if(newTour.getTotalWeight()!=previous.getTotalWeight())
