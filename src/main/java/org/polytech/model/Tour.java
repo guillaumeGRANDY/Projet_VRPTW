@@ -44,7 +44,7 @@ public class Tour {
         return totalDistance;
     }
 
-    public void tryExchangeInter(int ir1, int il1, int ir2, int il2) {
+    public boolean tryExchangeInter(int ir1, int il1, int ir2, int il2) {
         Route r1 = this.routes.get(ir1);
         Livraison l1 = r1.getLivraisons().get(il1);
 
@@ -59,9 +59,14 @@ public class Tour {
             r1.tryAddNewLivraison(l2, il1);
             r2.tryAddNewLivraison(l1, il2);
         }
+        else
+        {
+            return false;
+        }
+        return true;
     }
 
-    public void tryRelocateInter(int indexRoute1, int indiceLivraisonRoute1, int indexRoute2, int indiceLivraisonRoute2) {
+    public boolean tryRelocateInter(int indexRoute1, int indiceLivraisonRoute1, int indexRoute2, int indiceLivraisonRoute2) {
         if (indexRoute1 < 0 || indexRoute1 >= this.routes.size() || indexRoute2 < 0 || indexRoute2 >= this.routes.size()) {
             throw new IllegalArgumentException("Index de route invalide");
         }
@@ -74,13 +79,19 @@ public class Tour {
         if(r2.tryAddNewLivraison(l,indiceLivraisonRoute2)) {
             r1.removeLivraison(indiceLivraisonRoute1);
         }
+        else
+        {
+            return false;
+        }
 
         if(r1.getLivraisons().isEmpty()) {
             this.routes.remove(indexRoute1);
         }
+
+        return true;
     }
 
-    public void tryInterGroupeExchange(int indexRoute1, int indiceLivraisonRoute11, int indiceLivraisonRoute12, int indexRoute2, int indiceLivraisonRoute21, int indiceLivraisonRoute22) {
+    public boolean tryInterGroupeExchange(int indexRoute1, int indiceLivraisonRoute11, int indiceLivraisonRoute12, int indexRoute2, int indiceLivraisonRoute21, int indiceLivraisonRoute22) {
         if (indexRoute1 < 0 || indexRoute1 >= this.routes.size() || indexRoute2 < 0 || indexRoute2 >= this.routes.size()) {
             throw new IllegalArgumentException("Index de route invalide");
         }
@@ -118,9 +129,14 @@ public class Tour {
             r1.tryAddNewLivraisons(indiceLivraisonRoute11, subListLivraisonsRoute2);
             r2.tryAddNewLivraisons(indiceLivraisonRoute21, subListLivraisonsRoute1);
         }
+        else {
+            return false;
+        }
+
+        return true;
     }
 
-    public void tryRelocateGroupeInter(int indexRoute1, int indiceLivraisonRoute11, int indiceLivraisonRoute12, int indexRoute2, int indiceLivraisonRoute2) {
+    public boolean tryRelocateGroupeInter(int indexRoute1, int indiceLivraisonRoute11, int indiceLivraisonRoute12, int indexRoute2, int indiceLivraisonRoute2) {
         if (indexRoute1 < 0 || indexRoute1 >= this.routes.size() || indexRoute2 < 0 || indexRoute2 >= this.routes.size()) {
             throw new IllegalArgumentException("Index de route invalide");
         }
@@ -143,13 +159,18 @@ public class Tour {
                 r1.removeLivraison(subListLivraisons);
             }
         }
+        else {
+            return false;
+        }
 
         if(r1.getLivraisons().isEmpty()) {
             this.routes.remove(indexRoute1);
         }
+
+        return true;
     }
 
-    public void tryMerge(int indexRoute1, int indexRoute2, int indice) {
+    public boolean tryMerge(int indexRoute1, int indexRoute2, int indice) {
         if (indexRoute1 < 0 || indexRoute1 >= this.routes.size() || indexRoute2 < 0 || indexRoute2 >= this.routes.size()) {
             throw new IllegalArgumentException("Index de route invalide");
         }
@@ -171,10 +192,15 @@ public class Tour {
                 routes.remove(r1);
             }
         }
+        else{
+            return false;
+        }
 
         if(r1.getLivraisons().isEmpty()) {
             this.routes.remove(indexRoute1);
         }
+
+        return true;
     }
 
     @Override
@@ -194,5 +220,28 @@ public class Tour {
             total+=route.getWeight();
         }
         return total;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if(getClass()!= obj.getClass())
+        {
+            return false;
+        }
+
+        Tour otherTour=(Tour) obj;
+
+        if(otherTour.routes.size()!=routes.size()) {
+            return false;
+        }
+        for(int i=0;i<routes.size();i++)
+        {
+            if(!routes.get(i).equals(otherTour.routes.get(i))){
+                return false;
+            }
+        }
+
+        return true;
     }
 }

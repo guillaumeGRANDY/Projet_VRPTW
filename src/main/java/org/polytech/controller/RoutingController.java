@@ -73,6 +73,8 @@ public class RoutingController implements Initializable {
     private Tour tour = null;
     private List<Route> routes = new ArrayList<>();
 
+    private TabuSearch tabuSearch = new TabuSearch();
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         this.initialAlgorithmComboBox.setItems(FXCollections.observableList(Arrays.stream(AlgorithmType.values()).toList()));
@@ -147,8 +149,8 @@ public class RoutingController implements Initializable {
                 return;
             }
 
-            TabuSearch tabuSearch = new TabuSearch();
-            this.tour = tabuSearch.explore(this.tour, 100,1000);
+
+            this.tour = tabuSearch.explore(this.tour, 2,1);
             this.routes = tour.getRoutes();
             this.makeTourne();
         });

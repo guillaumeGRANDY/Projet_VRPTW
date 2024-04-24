@@ -72,4 +72,6 @@ public class Truck {
     public boolean hasEnoughCapacity(int demand) {
         return this.placeRemaning - demand >= 0;
     }
+
+
 }

@@ -206,4 +206,27 @@ public class Route {
             totalRemove++;
         }
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if(getClass()!= obj.getClass())
+        {
+            return false;
+        }
+
+        Route otherRoute=(Route) obj;
+
+        if(otherRoute.livraisons.size()!=livraisons.size()) {
+            return false;
+        }
+        for(int i=0;i<livraisons.size();i++)
+        {
+            if(!livraisons.get(i).equals(otherRoute.livraisons.get(i))){
+                return false;
+            }
+        }
+
+        return true;
+    }
 }

@@ -20,4 +20,15 @@ public class Livraison {
     public void setHeureArrive(double heureArrive) {
         this.heureArrive = heureArrive;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if(getClass()!= obj.getClass())
+        {
+            return false;
+        }
+
+        return ((Livraison) obj).client.equals(client);
+    }
 }
