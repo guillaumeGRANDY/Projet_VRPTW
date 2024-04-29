@@ -15,6 +15,7 @@ import org.polytech.App;
 import org.polytech.algorithm.LocalSearchType;
 import org.polytech.algorithm.globalsearch.SimulatedAnnealing;
 import org.polytech.algorithm.globalsearch.TabuSearch;
+import org.polytech.algorithm.globalsearch.TabuSearch2;
 import org.polytech.algorithm.localsearch.HillClimbingEchangeInter;
 import org.polytech.algorithm.localsearch.HillClimbingException;
 import org.polytech.algorithm.localsearch.LocalSearchFactory;
@@ -73,7 +74,7 @@ public class RoutingController implements Initializable {
     private Tour tour = null;
     private List<Route> routes = new ArrayList<>();
 
-    private TabuSearch tabuSearch = new TabuSearch();
+    private TabuSearch2 tabuSearch = new TabuSearch2();
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
