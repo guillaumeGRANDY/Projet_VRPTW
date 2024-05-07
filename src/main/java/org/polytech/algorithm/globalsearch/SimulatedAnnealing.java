@@ -28,10 +28,10 @@ public class SimulatedAnnealing{
         double p;
 
         double currentTemperature = initialTemperature;
-        int nbTemp = (int)(Math.log(Math.log(0.8) / Math.log(0.01))/Math.log(mu));
+        int nbTemp = 100;
         for (int i = 0; i <= nbTemp; i++) {
             for (int j = 1; j <= this.movesAtTemperatureTk; j++) {
-                siblingTour = selectRandomSibling(minTour);
+                siblingTour = selectRandomSibling(currentTour);
                 distance = siblingTour.distance() - currentTour.distance();
 
                 if(distance <= 0) {
@@ -43,7 +43,7 @@ public class SimulatedAnnealing{
                 else {
                     p = this.random.nextDouble(0, 1);
                     if(p <= Math.exp(-distance / currentTemperature)) {
-                        minTour = siblingTour;
+                        currentTour = siblingTour;
                     }
                 }
             }
