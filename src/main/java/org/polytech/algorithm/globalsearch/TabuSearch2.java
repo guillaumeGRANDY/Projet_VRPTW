@@ -77,7 +77,7 @@ public class TabuSearch2 {
 
                     siblingTour.getRoutes().get(indexRoute).tryExchangeIntra(indexLivraison1, indexLivraison2);
 
-                    if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.ECHANGE_INTRA, Arrays.asList(indexRoute,indexLivraison1,indexLivraison2)))
+                    if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.ECHANGE_INTRA, Arrays.asList(indexRoute,indexLivraison1,indexLivraison2)) && this.isAllowed(LocalSearchType.ECHANGE_INTRA, Arrays.asList(indexRoute,indexLivraison2,indexLivraison1)))
                     {
                         bestTour=siblingTour;
                         bestDistance=siblingTour.distance();
@@ -102,7 +102,7 @@ public class TabuSearch2 {
 
                         if(siblingTour.tryExchangeInter(indexRoute1, indexLivraisonRoute1, indexRoute2, indexLivraisonRoute2))
                         {
-                            if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.ECHANGE_INTER, Arrays.asList(indexRoute1,indexRoute2,indexLivraisonRoute1,indexLivraisonRoute2)))
+                            if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.ECHANGE_INTER, Arrays.asList(indexRoute1,indexRoute2,indexLivraisonRoute1,indexLivraisonRoute2)) && this.isAllowed(LocalSearchType.ECHANGE_INTER, Arrays.asList(indexRoute2,indexRoute1,indexLivraisonRoute2,indexLivraisonRoute1)))
                             {
                                 bestTour = siblingTour;
                                 bestDistance=siblingTour.distance();
@@ -128,7 +128,7 @@ public class TabuSearch2 {
 
                     siblingTour.getRoutes().get(indexRoute).tryRelocateIntra(indexLivraison1,indexLivraison2);
 
-                    if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.RELOCATE_INTRA,Arrays.asList(indexRoute, indexLivraison1, indexLivraison2)))
+                    if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.RELOCATE_INTRA,Arrays.asList(indexRoute, indexLivraison1, indexLivraison2)) && this.isAllowed(LocalSearchType.RELOCATE_INTRA,Arrays.asList(indexRoute, indexLivraison2, indexLivraison1)))
                     {
                         bestTour = siblingTour;
                         bestDistance=siblingTour.distance();
@@ -281,26 +281,26 @@ public class TabuSearch2 {
 
         if(bestDistance>=initialDistance)
         {
-            System.out.println("Aucune meilleur solution n'a été trouvée, remonté et ajout de l'opérateur à la liste de tabou => " +initialDistance+" -> "+bestDistance);
-            System.out.println("");
+            //System.out.println("Aucune meilleur solution n'a été trouvée, remonté et ajout de l'opérateur à la liste de tabou => " +initialDistance+" -> "+bestDistance);
+            //System.out.println("");
 
-            System.out.println("Liste des tabous");
+            //System.out.println("Liste des tabous");
             for(int i=0;i<tabuList.size();i++)
             {
-                System.out.print((i+1)+" ");
-                System.out.println(tabuList.get(i));
+                //System.out.print((i+1)+" ");
+                //System.out.println(tabuList.get(i));
             }
-            System.out.println("");
+            //System.out.println("");
 
-            System.out.println("par la méthode");
-            System.out.printf(operateurBestTour.toString());
+            //System.out.println("par la méthode");
+            //System.out.printf(operateurBestTour.toString());
 
-            System.out.println("");
-            System.out.println("");
+            //System.out.println("");
+            //System.out.println("");
             addTabou(operateurBestTour);
         }
         else {
-            System.out.println(initialDistance+" -> "+bestDistance);
+            //System.out.println(initialDistance+" -> "+bestDistance);
         }
 
         // System.out.println("Retour: "+bestTour.toString());

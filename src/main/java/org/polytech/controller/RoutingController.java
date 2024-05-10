@@ -14,7 +14,6 @@ import javafx.stage.FileChooser;
 import org.polytech.App;
 import org.polytech.algorithm.LocalSearchType;
 import org.polytech.algorithm.globalsearch.SimulatedAnnealing;
-import org.polytech.algorithm.globalsearch.SimulatedAnnealingMultiple;
 import org.polytech.algorithm.globalsearch.TabuSearch2;
 import org.polytech.algorithm.localsearch.HillClimbingException;
 import org.polytech.algorithm.localsearch.LocalSearchFactory;
