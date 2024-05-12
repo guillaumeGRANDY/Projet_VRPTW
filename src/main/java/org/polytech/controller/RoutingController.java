@@ -8,21 +8,25 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.Group;
 import javafx.scene.control.*;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.stage.FileChooser;
 import org.polytech.App;
 import org.polytech.algorithm.LocalSearchType;
-import org.polytech.algorithm.globalsearch.SimulatedAnnealing;
 import org.polytech.algorithm.globalsearch.TabuSearch2;
 import org.polytech.algorithm.localsearch.HillClimbingException;
 import org.polytech.algorithm.localsearch.LocalSearchFactory;
 import org.polytech.algorithm.tour.*;
+import org.polytech.export.CvrpSolutionResult;
+import org.polytech.simulation.simulatedannaealing.export.SimulatedAnnealingResultExportCsv;
 import org.polytech.model.*;
 import org.polytech.parser.LocationParser;
+import org.polytech.simulation.simulatedannaealing.SimulatedAnnealingSimulation;
 import org.polytech.vue.CircleClient;
 import org.polytech.vue.CircleDepot;
 import org.polytech.vue.Connector;
+import org.polytech.vue.UtilsIHM;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,6 +40,8 @@ public class RoutingController implements Initializable {
     private Label totalDemand;
     @FXML
     private Label fitness;
+    @FXML
+    private Label fitnessLabel2;
     @FXML
     private Button startRecuitSimule;
     @FXML
@@ -54,6 +60,12 @@ public class RoutingController implements Initializable {
     private TableView<Client> clientsTable;
     @FXML
     private TableView<Route> routesTable;
+    @FXML
+    private Button previousTourButton;
+    @FXML
+    private Button nextTourButton;
+    @FXML
+    private Label currentTourLabel;
 
     private Group mapGroup;
     private final List<Connector> connectors = new ArrayList<>();
@@ -69,7 +81,8 @@ public class RoutingController implements Initializable {
     private Depot begin;
     private ConstraintTruck constraintTruck;
 
-    private Tour tour = null;
+    private Integer currentTourIndex = null;
+    private List<Tour> tours = new ArrayList<>();
     private List<Route> routes = new ArrayList<>();
 
     private TabuSearch2 tabuSearch = new TabuSearch2();
@@ -89,69 +102,73 @@ public class RoutingController implements Initializable {
 
         this.initFileTest();
 
+        this.hideNavigationTourElements();
+
         this.startInitialAlgoButton.setOnAction(actionEvent -> {
-            this.tour = AlgoTourFactory.makeTour(this.constraintTruck,
+            this.tours.clear();
+
+            this.setCurrentTour(AlgoTourFactory.makeTour(this.constraintTruck,
                     this.begin,
                     this.clients,
-                    this.initialAlgorithmComboBox.getValue());
-            this.routes = this.tour.getRoutes();
-            this.makeTourne();
+                    this.initialAlgorithmComboBox.getValue()));
         });
 
         this.startLocalSearchButton.setOnAction(actionEvent -> {
-            if (this.tour == null) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Erreur");
-                alert.setHeaderText("Aucun tour n'a été généré");
-                alert.setContentText("Veuillez générer un tour avant de lancer la recherche locale");
-                alert.showAndWait();
+            if (this.currentTour() == null) {
+                UtilsIHM.displayError("Veuillez générer un tour avant de lancer la recherche locale");
                 return;
             }
 
             LocalSearchType localSearchType = this.localSearchTypeComboBox.getValue();
             try {
-                this.tour = LocalSearchFactory.makeLocalSearch(this.tour, localSearchType);
+                this.setCurrentTour(LocalSearchFactory.makeLocalSearch(this.currentTour(), localSearchType));
             } catch (HillClimbingException e) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Erreur");
-                alert.setHeaderText("Erreur lors de la recherche locale");
-                alert.setContentText(e.getMessage());
-                alert.showAndWait();
+                UtilsIHM.displayError("Erreur lors de la recherche locale");
             }
-            this.routes = this.tour.getRoutes();
-            this.makeTourne();
         });
 
         this.startRecuitSimule.setOnAction(actionEvent -> {
-            if (this.tour == null) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Erreur");
-                alert.setHeaderText("Aucun tour n'a été généré");
-                alert.setContentText("Veuillez générer un tour avant de lancer la recherche locale");
-                alert.showAndWait();
+            if (this.currentTour() == null) {
+                UtilsIHM.displayError("Veuillez générer un tour avant de lancer la recherche locale");
                 return;
             }
 
-            SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(1000, 0.96);
-            this.tour = simulatedAnnealing.explore(this.tour, 10);
-            this.routes = tour.getRoutes();
-            this.makeTourne();
+            SASimulationDialog saSimulationDialog = new SASimulationDialog(App.getStage());
+            saSimulationDialog.showAndWait().ifPresent(simulatedAnnealingConfig -> {
+                CvrpSolutionResult cvrpSolutionResult = SimulatedAnnealingSimulation.explore(this.begin, this.clients, simulatedAnnealingConfig.simulatedAnnealingParameter(), simulatedAnnealingConfig.repeatedTimes());
+
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Résultat");
+                alert.setHeaderText("Résultat de la simulation");
+                alert.setContentText("Fitness moyen: " + cvrpSolutionResult.fitnessAverage() + "\n" +
+                        "Ecart type: " + cvrpSolutionResult.ecartType() + "\n" +
+                        "Nombre de camions moyen: " + cvrpSolutionResult.totalTruck() + "\n" +
+                        "Fitness minimale: " + cvrpSolutionResult.minFitness() + "\n" +
+                        "Fitness maximale: " + cvrpSolutionResult.maxFitness());
+                alert.showAndWait();
+                this.tours = cvrpSolutionResult.tours();
+
+                this.setCurrentTour(cvrpSolutionResult.tours().get(0));
+                this.currentTourIndex = 0;
+                try {
+                    if(saSimulationDialog.getExportFile() != null) {
+                        SimulatedAnnealingResultExportCsv.export(saSimulationDialog.getExportFile().getPath(), simulatedAnnealingConfig.simulatedAnnealingParameter(), cvrpSolutionResult);
+                    }
+                } catch (IOException e) {
+                    UtilsIHM.displayError("Erreur lors de l'export des données du recuit simulé");
+                }
+                this.updateCurrentTourLabel();
+            });
         });
 
         this.startTabuSearch.setOnAction(actionEvent -> {
-            if (this.tour == null) {
-                Alert alert = new Alert(Alert.AlertType.ERROR);
-                alert.setTitle("Erreur");
-                alert.setHeaderText("Aucun tour n'a été généré");
-                alert.setContentText("Veuillez générer un tour avant de lancer la recherche locale");
-                alert.showAndWait();
+            if (this.currentTour() == null) {
+                UtilsIHM.displayError("Veuillez générer un tour avant de lancer la recherche locale");
                 return;
             }
 
 
-            this.tour = tabuSearch.explore(this.tour, 10,1);
-            this.routes = tour.getRoutes();
-            this.makeTourne();
+            this.setCurrentTour(tabuSearch.explore(this.currentTour(), 10,1));
         });
     }
 
@@ -241,7 +258,7 @@ public class RoutingController implements Initializable {
         this.routeColor = new HashMap<>();
 
         Color color = new Color(0, 0, 1, 1);
-        for (Route route : this.tour.getRoutes()) {
+        for (Route route : this.currentTour().getRoutes()) {
             this.routeColor.put(route, color);
 
             Depot beginDepotRoute = route.getBegin();
@@ -280,8 +297,29 @@ public class RoutingController implements Initializable {
 
             color = new Color(Math.random(), Math.random(), Math.random(), 1);
         }
-        this.routesTable.setItems(FXCollections.observableList(this.tour.getRoutes()));
-        this.fitness.setText("Fitness: " + this.tour.distance());
+        this.routesTable.setItems(FXCollections.observableList(this.currentTour().getRoutes()));
+        this.setFitness();
+        if(this.tours.size() > 1) {
+            this.showNavigationTourElements();
+        } else {
+            this.hideNavigationTourElements();
+        }
+    }
+
+    private void setFitness() {
+        this.fitness.setText("Fitness: " + this.currentTour().distance());
+        this.fitnessLabel2.setText("Fitness: " + this.currentTour().distance());
+    }
+
+    private void setCurrentTour(Tour tour) {
+        if (this.currentTourIndex == null) {
+            this.tours.add(tour);
+            this.currentTourIndex = 0;
+        } else {
+            this.tours.set(this.currentTourIndex, tour);
+        }
+        this.routes = tour.getRoutes();
+        this.makeTourne();
     }
 
     private void initClientsCircle() {
@@ -317,6 +355,20 @@ public class RoutingController implements Initializable {
         this.depotCircles.put(begin, beginCircle);
     }
 
+    private void hideNavigationTourElements() {
+        this.previousTourButton.setVisible(false);
+        this.nextTourButton.setVisible(false);
+    }
+
+    private void showNavigationTourElements() {
+        this.previousTourButton.setVisible(true);
+        this.nextTourButton.setVisible(true);
+    }
+
+    private void updateCurrentTourLabel() {
+        this.currentTourLabel.setText("Tour " + (this.currentTourIndex + 1) + "/" + this.tours.size());
+    }
+
     @FXML
     protected void importVrpFileFromFolder() {
         FileChooser fileChooser = new FileChooser();
@@ -327,11 +379,7 @@ public class RoutingController implements Initializable {
         try {
             this.locationParser.parseFile(choosedFile);
         } catch (IOException e) {
-            Alert alert = new Alert(Alert.AlertType.ERROR);
-            alert.setTitle("Erreur");
-            alert.setHeaderText("Erreur lors de la lecture du fichier");
-            alert.setContentText(e.getMessage());
-            alert.showAndWait();
+            UtilsIHM.displayError("Erreur lors de la lecture du fichier");
             return;
         }
 
@@ -346,7 +394,11 @@ public class RoutingController implements Initializable {
         this.routeColor.clear();
         this.routeConnectors.clear();
         this.routes.clear();
-        this.tour = null;
+        this.tours.clear();
+    }
+
+    private Tour currentTour() {
+        return this.tours.isEmpty() ? null : this.tours.get(this.currentTourIndex);
     }
 
     private void initFileTest() {
@@ -364,5 +416,21 @@ public class RoutingController implements Initializable {
             totalDemand += client.getDemand();
         }
         this.totalDemand.setText(String.valueOf(totalDemand));
+    }
+
+    public void previousTour(MouseEvent mouseEvent) {
+        if (this.currentTourIndex > 0) {
+            this.currentTourIndex--;
+        }
+        this.updateCurrentTourLabel();
+        this.setCurrentTour(this.tours.get(this.currentTourIndex));
+    }
+
+    public void nextTour(MouseEvent mouseEvent) {
+        if (this.currentTourIndex < this.tours.size() - 1) {
+            this.currentTourIndex++;
+        }
+        this.updateCurrentTourLabel();
+        this.setCurrentTour(this.tours.get(this.currentTourIndex));
     }
 }

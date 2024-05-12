@@ -3,22 +3,54 @@ package org.polytech.algorithm.globalsearch;
 import org.polytech.algorithm.LocalSearchType;
 import org.polytech.model.Route;
 import org.polytech.model.Tour;
+import org.polytech.simulation.simulatedannaealing.SimulatedAnnealingParameter;
+import org.polytech.simulation.simulatedannaealing.TourGeneratedWithSimulatedAnnealing;
 
 import java.util.Random;
 
 public class SimulatedAnnealing{
     private int maxTemperatureChange;
-    private int movesAtTemperatureTk = 500000;
+    private int movesAtTemperatureTk;
     private double mu;
+
     private Random random;
 
-    public SimulatedAnnealing(int maxTemperatureChange, double mu) {
-        this.maxTemperatureChange = maxTemperatureChange;
-        this.mu = mu;
+    public SimulatedAnnealing() {
         this.random = new Random();
     }
 
-    public Tour explore(Tour initialSolution, double initialTemperature) {
+    public SimulatedAnnealing(int maxTemperatureChange, int movesAtTemperatureTk, double mu) {
+        this();
+        this.maxTemperatureChange = maxTemperatureChange;
+        this.movesAtTemperatureTk = movesAtTemperatureTk;
+        this.mu = mu;
+    }
+
+    public void setMaxTemperatureChange(int maxTemperatureChange) {
+        this.maxTemperatureChange = maxTemperatureChange;
+    }
+
+    public void setMu(double mu) {
+        this.mu = mu;
+    }
+
+    public void setMovesAtTemperatureTk(int movesAtTemperatureTk) {
+        this.movesAtTemperatureTk = movesAtTemperatureTk;
+    }
+
+    public int getMaxTemperatureChange() {
+        return maxTemperatureChange;
+    }
+
+    public int getMovesAtTemperatureTk() {
+        return movesAtTemperatureTk;
+    }
+
+    public double getMu() {
+        return mu;
+    }
+
+    public TourGeneratedWithSimulatedAnnealing explore(Tour initialSolution, double initialTemperature) {
 //        System.out.println("Exploration des solutions");
         Tour minTour = new Tour(initialSolution);
         Tour siblingTour;
@@ -27,8 +59,8 @@ public class SimulatedAnnealing{
         double p;
 
         double currentTemperature = initialTemperature;
-        int nbTemp = 100;
-        for (int i = 0; i <= nbTemp; i++) {
+
+        for (int i = 0; i <= this.maxTemperatureChange; i++) {
             for (int j = 1; j <= this.movesAtTemperatureTk; j++) {
                 siblingTour = selectRandomSibling(currentTour);
                 distance = siblingTour.distance() - currentTour.distance();
@@ -36,20 +68,20 @@ public class SimulatedAnnealing{
                 if(distance <= 0) {
                     currentTour = new Tour(siblingTour.getRoutes());
                     if (currentTour.distance() < minTour.distance()) {
-                        minTour = currentTour;
+                        minTour = new Tour(currentTour);
                     }
                 }
                 else {
                     p = this.random.nextDouble(0, 1);
                     if(p <= Math.exp(-distance / currentTemperature)) {
-                        currentTour = siblingTour;
+                        currentTour = new Tour(siblingTour);
                     }
                 }
             }
             currentTemperature *= mu;
         }
 //        System.out.println("Fin de l'optimisation");
-        return minTour;
+        return new TourGeneratedWithSimulatedAnnealing(minTour, new SimulatedAnnealingParameter(this.maxTemperatureChange, this.movesAtTemperatureTk, this.mu, initialTemperature));
     }
 
     protected Tour selectRandomSibling(Tour previous) {
