@@ -6,7 +6,10 @@ import org.polytech.algorithm.tour.AlgorithmType;
 import org.polytech.export.CvrpSolutionResult;
 import org.polytech.model.*;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 public class SimulatedAnnealingSimulation {
@@ -54,26 +57,27 @@ public class SimulatedAnnealingSimulation {
         simulatedAnnealing.setMovesAtTemperatureTk(movesAtTemperatureTk);
         simulatedAnnealing.setMu(mu);
 
-        double initialTemperature = 0.5;
-        while (initialTemperature <= 10) {
-            tourGeneratedWithSimulatedAnnealings.addAll(exploreWithDynamicMu(initial, initialTemperature, 0.1, 1, 0.05));
-            initialTemperature += 0.5;
-            initial = AlgoTourFactory.makeTour(new ConstraintTruck(200),
-                    depot,
-                    clients,
-                    AlgorithmType.RANDOM);
-        }
 
-        return tourGeneratedWithSimulatedAnnealings;
-    }
+        BigDecimal fromMu = new BigDecimal("0.1");
+        BigDecimal toMu = new BigDecimal(1);
+        BigDecimal stepMu = new BigDecimal("0.05");
 
-    private static List<TourGeneratedWithSimulatedAnnealing> exploreWithDynamicMu(Tour initial, double initialTemperature, double from, double to, double step) {
-        List<TourGeneratedWithSimulatedAnnealing> tourGeneratedWithSimulatedAnnealings = new ArrayList<>();
-        double currentMu = from;
-        while (currentMu <= to) {
-            simulatedAnnealing.setMu(currentMu);
-            tourGeneratedWithSimulatedAnnealings.add(simulatedAnnealing.explore(initial, initialTemperature));
-            currentMu += step;
+        int fromN1 = 10;
+        int toN1 = 100;
+        int stepForN1 = 5;
+
+        for (double initialTemperature = 0.5; initialTemperature <= 10; initialTemperature += 0.5) {
+            for (int currentN1 = fromN1; currentN1 <= toN1; currentN1 += stepForN1) {
+                for (BigDecimal currentMu = fromMu; currentMu.compareTo(toMu) <= 0; currentMu = currentMu.add(stepMu)) {
+                    simulatedAnnealing.setMu(currentMu.doubleValue());
+
+                    tourGeneratedWithSimulatedAnnealings.add(simulatedAnnealing.explore(initial, initialTemperature));
+                    initial = AlgoTourFactory.makeTour(new ConstraintTruck(200), // on part d'une nouvelle tournée Random pour chaque couple de paramètre
+                            depot,
+                            clients,
+                            AlgorithmType.RANDOM);
+                }
+            }
         }
 
         return tourGeneratedWithSimulatedAnnealings;

@@ -316,7 +316,11 @@ public class RoutingController implements Initializable {
             this.tours.add(tour);
             this.currentTourIndex = 0;
         } else {
-            this.tours.set(this.currentTourIndex, tour);
+            if(this.tours.isEmpty()) {
+                this.tours.add(tour);
+            } else {
+                this.tours.set(this.currentTourIndex, tour);
+            }
         }
         this.routes = tour.getRoutes();
         this.makeTourne();
@@ -371,6 +375,7 @@ public class RoutingController implements Initializable {
 
     @FXML
     protected void importVrpFileFromFolder() {
+        this.currentTourIndex = null;
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Choisir un fichier de clients");
         File choosedFile = fileChooser.showOpenDialog(App.getStage());
