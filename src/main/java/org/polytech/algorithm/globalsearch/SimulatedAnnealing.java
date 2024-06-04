@@ -10,7 +10,6 @@ public class SimulatedAnnealing{
     private int maxTemperatureChange;
     private int movesAtTemperatureTk = 500000;
     private double mu;
-
     private Random random;
 
     public SimulatedAnnealing(int maxTemperatureChange, double mu) {
@@ -20,7 +19,7 @@ public class SimulatedAnnealing{
     }
 
     public Tour explore(Tour initialSolution, double initialTemperature) {
-        System.out.println("Exploration des solutions");
+//        System.out.println("Exploration des solutions");
         Tour minTour = new Tour(initialSolution);
         Tour siblingTour;
         Tour currentTour=new Tour(initialSolution);
@@ -49,7 +48,7 @@ public class SimulatedAnnealing{
             }
             currentTemperature *= mu;
         }
-        System.out.println("Fin de l'optimisation");
+//        System.out.println("Fin de l'optimisation");
         return minTour;
     }
 
