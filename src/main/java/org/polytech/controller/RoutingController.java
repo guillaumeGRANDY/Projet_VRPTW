@@ -14,9 +14,7 @@ import javafx.stage.FileChooser;
 import org.polytech.App;
 import org.polytech.algorithm.LocalSearchType;
 import org.polytech.algorithm.globalsearch.SimulatedAnnealing;
-import org.polytech.algorithm.globalsearch.TabuSearch;
 import org.polytech.algorithm.globalsearch.TabuSearch2;
-import org.polytech.algorithm.localsearch.HillClimbingEchangeInter;
 import org.polytech.algorithm.localsearch.HillClimbingException;
 import org.polytech.algorithm.localsearch.LocalSearchFactory;
 import org.polytech.algorithm.tour.*;
@@ -135,7 +133,7 @@ public class RoutingController implements Initializable {
             }
 
             SimulatedAnnealing simulatedAnnealing = new SimulatedAnnealing(1000, 0.96);
-            this.tour = simulatedAnnealing.explore(this.tour, 0.5);
+            this.tour = simulatedAnnealing.explore(this.tour, 10);
             this.routes = tour.getRoutes();
             this.makeTourne();
         });

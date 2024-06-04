@@ -193,7 +193,7 @@ public class TabuSearch2 {
 
                     siblingTour.getRoutes().get(indexRoute).tryExchangeIntra(indexLivraison1, indexLivraison2);
 
-                    if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.ECHANGE_INTRA, Arrays.asList(indexRoute,indexLivraison1,indexLivraison2)))
+                    if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.ECHANGE_INTRA, Arrays.asList(indexRoute,indexLivraison1,indexLivraison2)) && this.isAllowed(LocalSearchType.ECHANGE_INTRA, Arrays.asList(indexRoute,indexLivraison2,indexLivraison1)))
                     {
                         bestTour=siblingTour;
                         bestDistance=siblingTour.distance();
@@ -218,7 +218,7 @@ public class TabuSearch2 {
 
                         if(siblingTour.tryExchangeInter(indexRoute1, indexLivraisonRoute1, indexRoute2, indexLivraisonRoute2))
                         {
-                            if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.ECHANGE_INTER, Arrays.asList(indexRoute1,indexRoute2,indexLivraisonRoute1,indexLivraisonRoute2)))
+                            if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.ECHANGE_INTER, Arrays.asList(indexRoute1,indexRoute2,indexLivraisonRoute1,indexLivraisonRoute2)) && this.isAllowed(LocalSearchType.ECHANGE_INTER, Arrays.asList(indexRoute2,indexRoute1,indexLivraisonRoute2,indexLivraisonRoute1)))
                             {
                                 bestTour = siblingTour;
                                 bestDistance=siblingTour.distance();
@@ -244,7 +244,7 @@ public class TabuSearch2 {
 
                     siblingTour.getRoutes().get(indexRoute).tryRelocateIntra(indexLivraison1,indexLivraison2);
 
-                    if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.RELOCATE_INTRA,Arrays.asList(indexRoute, indexLivraison1, indexLivraison2)))
+                    if (siblingTour.distance() < bestDistance && this.isAllowed(LocalSearchType.RELOCATE_INTRA,Arrays.asList(indexRoute, indexLivraison1, indexLivraison2)) && this.isAllowed(LocalSearchType.RELOCATE_INTRA,Arrays.asList(indexRoute, indexLivraison2, indexLivraison1)))
                     {
                         bestTour = siblingTour;
                         bestDistance=siblingTour.distance();
