@@ -70,6 +70,7 @@ public class SimulatedAnnealingSimulation {
             for (int currentN1 = fromN1; currentN1 <= toN1; currentN1 += stepForN1) {
                 for (BigDecimal currentMu = fromMu; currentMu.compareTo(toMu) <= 0; currentMu = currentMu.add(stepMu)) {
                     simulatedAnnealing.setMu(currentMu.doubleValue());
+                    simulatedAnnealing.setMaxTemperatureChange(currentN1);
 
                     tourGeneratedWithSimulatedAnnealings.add(simulatedAnnealing.explore(initial, initialTemperature));
                     initial = AlgoTourFactory.makeTour(new ConstraintTruck(200), // on part d'une nouvelle tournée Random pour chaque couple de paramètre
