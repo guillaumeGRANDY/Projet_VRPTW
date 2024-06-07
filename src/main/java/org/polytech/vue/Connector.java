@@ -1,13 +1,22 @@
 package org.polytech.vue;
 
+import javafx.scene.control.Tooltip;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.LineTo;
 import javafx.scene.shape.MoveTo;
 import javafx.scene.shape.Path;
+import org.polytech.model.Client;
+import org.polytech.model.Location;
 
 public class Connector extends Path {
+    private Tooltip tooltip;
     private static final double defaultArrowHeadSize = 10.0;
+    private final double startPointX;
+    private final double startPointY;
+    private final double endPointX;
+    private final double endPointY;
 
     public Connector(Circle beginCircle, Circle endCircle, double arrowHeadSize){
         super();
@@ -24,12 +33,12 @@ public class Connector extends Path {
         double angle = Math.atan2(endY - startY, endX - startX);
 
         // Calculate the new start point on the edge of the start circle
-        double startPointX = startX + startRadius * Math.cos(angle);
-        double startPointY = startY + startRadius * Math.sin(angle);
+        this.startPointX = startX + startRadius * Math.cos(angle);
+        this.startPointY = startY + startRadius * Math.sin(angle);
 
         // Calculate the new end point on the edge of the end circle
-        double endPointX = endX - endRadius * Math.cos(angle);
-        double endPointY = endY - endRadius * Math.sin(angle);
+        this.endPointX = endX - endRadius * Math.cos(angle);
+        this.endPointY = endY - endRadius * Math.sin(angle);
 
         // Line
         getElements().add(new MoveTo(startPointX, startPointY));
@@ -57,5 +66,16 @@ public class Connector extends Path {
         this(beginCircle, endCircle, defaultArrowHeadSize);
     }
 
-    
+    public Connector(Location first, Location next, Circle begin, Circle end) {
+        this(begin, end, defaultArrowHeadSize);
+
+        this.tooltip = new Tooltip(String.valueOf(first.distanceWith(next)));
+
+        this.setOnMouseClicked(this::onTooltipShow);
+        this.tooltip.setAutoHide(true);
+    }
+
+    public void onTooltipShow(MouseEvent e) {
+        this.tooltip.show(this, e.getScreenX(), e.getScreenY());
+    }
 }

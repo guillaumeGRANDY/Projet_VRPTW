@@ -1,5 +1,7 @@
 package org.polytech.model;
 
+import java.util.Objects;
+
 public class Client extends Location{
 
     /**
@@ -77,14 +79,19 @@ public class Client extends Location{
 
     @Override
     public String toString() {
-        return "Location{" +
-                "id='" + id + '\'' +
-                ", x=" + super.getX() +
-                ", y=" + super.getY() +
-                ", readyTime=" + readyTime +
-                ", dueTime=" + dueTime +
-                ", demand=" + demand +
-                ", service=" + service +
-                '}';
+        return "Client " + id;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        return Objects.equals(id, client.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
     }
 }

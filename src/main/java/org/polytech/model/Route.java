@@ -1,16 +1,24 @@
 package org.polytech.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Route {
     private Truck truck;
     private Depot depot;
-    private ArrayList<Client> clients = new ArrayList<>();
+    private List<Livraison> livraisons = new ArrayList<>();
 
     public Route(Depot depot, Truck truck) {
         this.depot = depot;
         this.truck = truck;
+    }
+
+    public Route(Route route) {
+        this.depot = route.depot;
+        this.livraisons = new ArrayList<>(route.livraisons);
+        this.truck = new Truck(route.truck);
     }
 
     public Depot getBegin() {
@@ -18,7 +26,19 @@ public class Route {
     }
 
     public List<Client> getClients() {
-        return this.clients;
+        return this.livraisons.stream().map(Livraison::client).collect(Collectors.toList());
+    }
+
+    public Truck getTruck() {
+        return truck;
+    }
+
+    public int getWeight() {
+        return this.truck.getMaxCapacity() - this.truck.getPlaceRemaning();
+    }
+
+    public List<Livraison> getLivraisons() {
+        return this.livraisons;
     }
 
     /**
@@ -28,55 +48,185 @@ public class Route {
      * @return la distance entre le dépot, toutes les localisations de la tournée et le retour au dépôt
      */
     public double distance() {
-        if (clients == null || clients.isEmpty()) {
+        if (this.livraisons == null || this.livraisons.isEmpty()) {
             return 0;
         }
 
         double distance = 0;
 
-        distance += this.depot.distanceWith(clients.get(0)); //distance entre le dépot et le client 1
+        distance += this.depot.distanceWith(this.livraisons.getFirst().client()); //distance entre le dépot et le client 1
 
-        for (int i = 0; i < clients.size() - 1; i++) {
-            distance += this.clients.get(i).distanceWith(clients.get(i + 1)); //distance entre le client i et le cliet i+1
+        for (int i = 0; i < this.livraisons.size() - 1; i++) {
+            distance += this.livraisons.get(i).client().distanceWith(this.livraisons.get(i + 1).client()); //distance entre le client i et le cliet i+1
         }
 
-        distance += this.clients.getLast().distanceWith(this.depot); //distance entre le dernier client et le depot
+        distance += this.livraisons.getLast().client().distanceWith(this.depot); //distance entre le dernier client et le depot
 
         return distance;
     }
 
     /**
-     * Ajoute un client à la tournée
+     * Transformation "échange entre 2 clients sur l'itinéraire"
+     * O(n):
      *
-     * @param client
+     * @param i1 la livraison 1
+     * @param i2 le livraison 2
      */
-    public void addClient(Client client) {
-        this.clients.add(client);
+    public void tryExchangeIntra(int i1, int i2) {
+        Livraison l1 = livraisons.get(i1);
+        Livraison l2 = livraisons.get(i2);
+
+        livraisons.set(i1, l2);
+        livraisons.set(i2, l1);
     }
 
-    public void deleteClient(Client client)
-    {
-        this.clients.remove(this.clients.indexOf(client));
-    }
-
-    public void exchangeClientPosition(Client c1, Client c2)
-    {
-        Client tmp=this.clients.get(this.clients.indexOf(c1));
-        c1=c2;
-        c2=tmp;
+    public void tryRelocateIntra(int oldIndex, int newIndex) {
+        Livraison livraison = this.livraisons.get(oldIndex);
+        this.livraisons.remove(oldIndex);
+        this.livraisons.add(newIndex, livraison);
     }
 
     @Override
     public String toString() {
-        StringBuilder route= new StringBuilder("Dépot -> ");
+        StringBuilder route = new StringBuilder("Dépot -> ");
 
-        for(Client client: clients)
-        {
-            route.append(client.getId()).append(" -> ");
+        for (Livraison livraison : livraisons) {
+            route.append(livraison.client().getId()).append(" -> ");
         }
 
         route.append("Dépot");
 
         return route.toString();
+    }
+
+    public void reverseTroncon(int i, int j) {
+        List<Livraison> tronconInverse = this.livraisons.subList(i, j + 1);
+        Collections.reverse(tronconInverse);
+    }
+
+    public boolean couldAddNewLivraison(Livraison livraison) {
+        return this.getTruck().hasEnoughCapacity(livraison.client().getDemand());
+    }
+
+    public boolean couldAddNewLivraison(int value) {
+        return this.getTruck().hasEnoughCapacity(value);
+    }
+
+    public boolean couldAddNewLivraisons(List<Livraison> oldLivraisons, List<Livraison> livraisonsToAdd) {
+        int oldTotal = 0;
+        for (Integer demand : oldLivraisons.stream().map(Livraison::client).map(Client::getDemand).toList()) {
+            oldTotal += demand;
+        }
+
+        int newTotal = 0;
+        for (Integer demand : livraisonsToAdd.stream().map(Livraison::client).map(Client::getDemand).toList()) {
+            newTotal += demand;
+        }
+
+        return this.truck.hasEnoughCapacity(-oldTotal + newTotal);
+    }
+
+    public boolean couldAddNewLivraisons(int beginIndex, List<Livraison> livraisons) {
+        int total = 0;
+        for (Livraison livraison : livraisons) {
+            total += livraison.client().getDemand();
+        }
+        return this.truck.hasEnoughCapacity(total);
+    }
+
+    public boolean tryAddNewLivraison(Livraison livraison)
+    {
+        if(this.getTruck().useCapacity(livraison.client().getDemand())) {
+            this.livraisons.add(livraison);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean tryAddNewLivraison(Livraison livraison, int index)
+    {
+        if(this.getTruck().useCapacity(livraison.client().getDemand())) {
+            this.livraisons.add(index,livraison);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean tryAddNewLivraisons(int beginIndex, List<Livraison> livraisonsToAdd) {
+        if(this.couldAddNewLivraisons(beginIndex, livraisonsToAdd)) {
+            this.livraisons.addAll(beginIndex, livraisonsToAdd);
+            for (Livraison livraison : livraisonsToAdd) {
+                this.getTruck().useCapacity(livraison.client().getDemand());
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public void tryIntraGroupeExchange(int indiceLivraisonOld1, int indiceLivraisonOld2, int indiceLivraisonNew) {
+        List<Livraison> subListLivraisonsRoute;
+        subListLivraisonsRoute = new ArrayList<>(livraisons.subList(indiceLivraisonOld1, indiceLivraisonOld2));
+
+        livraisons.removeAll(subListLivraisonsRoute);
+
+        if (indiceLivraisonNew > livraisons.size())
+        {
+            livraisons.addAll(subListLivraisonsRoute);
+        }
+        else
+        {
+            livraisons.addAll(indiceLivraisonNew, subListLivraisonsRoute);
+        }
+    }
+
+    public void removeLivraison(int indexLivraison) {
+        Livraison removed = this.livraisons.remove(indexLivraison);
+        this.truck.addCapacity(removed.client().getDemand());
+    }
+
+    public void removeLivraison(Livraison livraison) {
+        this.livraisons.remove(livraison);
+        this.truck.addCapacity(livraison.client().getDemand());
+    }
+
+    public void removeLivraison(List<Livraison> livraisons) {
+
+        for (Livraison livraison : livraisons) {
+            this.removeLivraison(livraison);
+        }
+    }
+
+    public void removeLivraison(int beginIndex, int endIndex) {
+        Livraison remove;
+        int totalToRemove = endIndex - beginIndex + 1;
+        int totalRemove = 0;
+        while (totalRemove < totalToRemove) {
+            remove = this.livraisons.remove(beginIndex);
+            this.truck.addCapacity(remove.client().getDemand());
+            totalRemove++;
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if(getClass()!= obj.getClass())
+        {
+            return false;
+        }
+
+        Route otherRoute=(Route) obj;
+
+        if(otherRoute.livraisons.size()!=livraisons.size()) {
+            return false;
+        }
+        for(int i=0;i<livraisons.size();i++)
+        {
+            if(!livraisons.get(i).equals(otherRoute.livraisons.get(i))){
+                return false;
+            }
+        }
+
+        return true;
     }
 }

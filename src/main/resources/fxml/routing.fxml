@@ -7,23 +7,55 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="org.polytech.controller.RoutingController"
-            prefHeight="400.0" prefWidth="600.0">
-    <VBox spacing="8"
-          AnchorPane.topAnchor="16"
-          AnchorPane.bottomAnchor="16"
-          AnchorPane.rightAnchor="16"
-          AnchorPane.leftAnchor="16">
-        <HBox>
-            <Button fx:id="startAlgoButton">Lancer algo</Button>
-            <ComboBox fx:id="algorithmChoice"/>
-        </HBox>
-        <SplitPane fx:id="map">
-        </SplitPane>
-        <HBox>
-            <Label fx:id="totalDistanceLabel"/>
-        </HBox>
-    </VBox>
+            prefHeight="800.0" prefWidth="1200">
+    <SplitPane fx:id="root" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+               AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <VBox spacing="8"
+              AnchorPane.topAnchor="16"
+              AnchorPane.bottomAnchor="16"
+              AnchorPane.rightAnchor="16"
+              AnchorPane.leftAnchor="16">
+            <HBox>
+                <Button fx:id="startInitialAlgoButton">Lancer algo initial</Button>
+                <ComboBox fx:id="initialAlgorithmComboBox"/>
+
+                <Button fx:id="startLocalSearchButton">Lancer recherche locale</Button>
+                <ComboBox fx:id="localSearchTypeComboBox"/>
+
+                <Button fx:id="startRecuitSimule">Lancer recuit simulé</Button>
+
+                <Button fx:id="startTabuSearch">Lancer méthode tabou</Button>
+            </HBox>
+            <SplitPane fx:id="map">
+            </SplitPane>
+        </VBox>
+        <TabPane>
+            <Tab text="Clients" closable="false">
+                <VBox spacing="8">
+                    <ButtonBar>
+                        <buttons>
+                            <Button onMouseClicked="#importVrpFileFromFolder">Importer des clients</Button>
+                        </buttons>
+                    </ButtonBar>
+                    <TableView VBox.vgrow="ALWAYS" fx:id="clientsTable">
+                    </TableView>
+                </VBox>
+            </Tab>
+            <Tab text="Itinéraires" closable="false">
+                <TableView fx:id="routesTable">
+                </TableView>
+            </Tab>
+            <Tab text="Stats" closable="false">
+                <Label fx:id="totalDemand"></Label>
+                <Label fx:id="fitness"></Label>
+            </Tab>
+        </TabPane>
+    </SplitPane>
 </AnchorPane>

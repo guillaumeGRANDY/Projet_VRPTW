@@ -36,4 +36,8 @@ public abstract class Location {
         double distanceY = Math.pow(Math.abs(this.y - location.y), 2);
         return Math.sqrt(distanceX + distanceY);
     }
+
+    public double timeWith(double distance) {
+        return distance * 1.2;
+    }
 }

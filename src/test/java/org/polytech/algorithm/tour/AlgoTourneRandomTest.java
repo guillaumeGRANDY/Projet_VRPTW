@@ -22,7 +22,7 @@ class AlgoTourneRandomTest {
                 new AlgoTourneRandom(new ConstraintTruck(locationParser.getMaxQuantity()), locationParser.getDepot(), locationParser.getClients());
 
         Tour tour = algoTourneAleatoire.makeTour();
-        double totalDistance = tour.totalDistance();
+        double totalDistance = tour.distance();
         assertNotNull(tour);
         assertTrue(totalDistance > 0);
     }
