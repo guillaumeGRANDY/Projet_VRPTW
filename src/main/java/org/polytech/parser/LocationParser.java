@@ -7,6 +7,8 @@ import java.io.*;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class LocationParser {
@@ -28,6 +30,26 @@ public class LocationParser {
     }
 
     public LocationParser() {
+    }
+
+    public List<String> getDataset() {
+        List<String> datasets = new ArrayList<>();
+        ClassLoader classLoader = getClass().getClassLoader();
+        URL resource = classLoader.getResource("dataset");
+        if (resource == null) {
+            throw new IllegalArgumentException("folder not found! ");
+        } else {
+            try {
+                File folder = new File(resource.toURI());
+
+                for (File file : Objects.requireNonNull(folder.listFiles())) {
+                    datasets.add(file.getName());
+                }
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return datasets;
     }
 
     public void parseFile(String fileName) throws IOException {

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<DialogPane xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" prefWidth="500">
+    <headerText>
+        <Label text="Simulated annealing simulation"/>
+    </headerText>
+    <content>
+        <VBox spacing="10">
+            <Label text="Nombre d'itérations de décroissance de températures"/>
+            <TextField fx:id="iterationsField" promptText="Nombre d'itération"/>
+            <Label text="Température initiale"/>
+            <TextField fx:id="initialTemperatureField" promptText="Température initiale"/>
+            <Label text="Valeur de mu"/>
+            <TextField fx:id="coolingRateField"
+                       promptText="Doit être comprise entre 0 et 1 pour faire décroître la température au cours du temps"/>
+            <Label text="Nombre d'itération pour une température donnée"/>
+            <TextField fx:id="iterationsPerNeighborField"
+                       promptText="Suffisament grande pour effectuer une recherche approfondie"/>
+            <Label fx:id="repeatedTimesLabel" text="Nombre de simulation"/>
+            <TextField fx:id="repeatedTimesField"/>
+
+            <HBox spacing="8">
+                <Label fx:id="fileChooseLabel"/>
+                <Button onMouseClicked="#chooseExportFile">Choisir le fichier d'export</Button>
+            </HBox>
+        </VBox>
+    </content>
+
+    <ButtonType fx:id="validParametersButtonType" text="Valider paramètres" buttonData="OK_DONE"/>
+    <ButtonType text="Annuler" buttonData="CANCEL_CLOSE"/>
+</DialogPane>
